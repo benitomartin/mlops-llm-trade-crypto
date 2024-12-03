@@ -1,10 +1,12 @@
 import asyncio
+import signal
+import sys
+
 from loguru import logger
 from quixstreams import Application
 
 from kraken_api.websocket import KrakenWebsocketAPI
-import signal
-import sys
+
 
 def signal_handler(sig, frame):
     logger.info("Shutting down trades service...")
@@ -18,7 +20,6 @@ signal.signal(signal.SIGTERM, signal_handler)
 async def shutdown_with_timeout(app, kraken_api, timeout=10):
     """
     Gracefully shut down Quix application and Kraken WebSocket client with timeout.
-    
     Args:
         app: Quix Streams application
         kraken_api: Kraken WebSocket API client
@@ -39,27 +40,29 @@ async def shutdown_with_timeout(app, kraken_api, timeout=10):
 
 async def main(kafka_broker_address: str, kafka_topic: str, kraken_api: KrakenWebsocketAPI):
     """
-    It does 2 things:
-    1. Reads trades from the Kraken API and
-    2. Pushes them to a Kafka topic.
+    Reads trade data from the Kraken WebSocket API and publishes it to a Kafka topic.
+
+    This function:
+    1. Connects to the Kraken WebSocket API to fetch live trade data.
+    2. Pushes the fetched trade data to a specified Kafka topic using Quix Streams.
 
     Args:
-        kafka_broker_address: str
-        kafka_topic: str
-        kraken_api: KrakenWebsocketAPI
+        kafka_broker_address (str): The address of the Kafka broker (e.g., 'localhost:9092').
+        kafka_topic (str): The name of the Kafka topic to which trade data will be published.
+        kraken_api (KrakenWebsocketAPI): An instance of the KrakenWebsocketAPI class used to fetch trade data.
 
     Returns:
         None
     """
 
     logger.info("Start the trades service")
-    
+
     # Initialize the Quix Streams application.
     # This class handles all the low-level details to connect to Kafka.
     # https://quix.io/docs/quix-streams/producer.html
     app = Application(broker_address=kafka_broker_address)
     topic = app.topic(name=kafka_topic, value_serializer='json')
-    
+
     producer = app.get_producer()  # Get the producer without async context manager
 
     try:
@@ -78,15 +81,15 @@ async def main(kafka_broker_address: str, kafka_topic: str, kraken_api: KrakenWe
                         topic=topic.name, value=message.value, key=message.key
                     )
                     logger.info(f"Pushed trade to Kafka: {trade}")
-                
+
                 except Exception as e:
                     logger.error(f"Error producing trade to Kafka: {e}")
-    
+
     finally:
         # Gracefully shut down the producer and WebSocket client
         await shutdown_with_timeout(app, kraken_api)
 
-        
+
 if __name__ == "__main__":
     from config import config
 

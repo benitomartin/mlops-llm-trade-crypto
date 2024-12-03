@@ -1,5 +1,7 @@
 from datetime import datetime
+
 from pydantic import BaseModel
+
 
 class Trade(BaseModel):
     """
@@ -10,7 +12,7 @@ class Trade(BaseModel):
     volume: float           # "qty": 40.0
     timestamp: datetime
     # timestamp_ms: int
-    
+
     @classmethod
     def from_kraken_api_response(
         cls,
@@ -26,7 +28,7 @@ class Trade(BaseModel):
             timestamp=timestamp,
             # timestamp_ms=cls._datestr2milliseconds(timestamp),
         )
-    
+
     # @staticmethod
     # def _datestr2milliseconds(datestr: str) -> int:
     #     return int(datetime.strptime(datestr, '%Y-%m-%dT%H:%M:%S.%fZ').timestamp() * 1000)

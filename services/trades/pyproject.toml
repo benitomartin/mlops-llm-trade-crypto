@@ -12,3 +12,25 @@ dependencies = [
     "websocket-client>=1.8.0",
     "websockets>=14.1",
 ]
+
+[project.optional-dependencies]
+dev = [
+       "pip>=24.2",
+       "ruff>=0.2.0, <1"
+       ]
+
+[tool.ruff.lint]
+select = [
+    "F",  # pyflakes rules
+    "E",  # pycodestyle error rules
+    "W",  # pycodestyle warning rules
+    "B",  # flake8-bugbear rules
+    "I",  # isort rules
+]
+
+ignore = [
+    "E501",  # line-too-long
+]
+
+[tool.ruff.format]
+indent-style = "space"

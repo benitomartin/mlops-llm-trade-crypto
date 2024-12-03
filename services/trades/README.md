@@ -108,12 +108,10 @@ Key Features:
 
 To create a new environment for this service and create a lockfile, run:
 
-    ```bash
     uv venv -p 3.11.0 .venv
     source .venv/bin/activate
 
     make req
-    ```
 
 ## Commands
 
@@ -127,6 +125,17 @@ From `docker-compose` folder:
 
 From `service/trades` folder:
 
-    ```
     # Start trade streaming service
-    ```
+    make run
+
+For other make commands run:
+
+    # Command to run "make help"
+    make 
+
+    # Output sample
+    req                            Install requirements
+    run                            Run Trades Service App
+    ruff                           Run Ruff linter
+    clean                          Clean up generated files
+    help                           Display this help message

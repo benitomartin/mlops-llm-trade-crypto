@@ -1,12 +1,15 @@
 import json
-from loguru import logger
-import websockets
 from typing import List
+
+import websockets
+from loguru import logger
+
 from .trade import Trade
+
 
 class KrakenWebsocketAPI:
 
-    URL = "wss://ws.kraken.com/v2"  # See Channel: https://docs.kraken.com/api/docs/websocket-v2/trade 
+    URL = "wss://ws.kraken.com/v2"  # See Channel: https://docs.kraken.com/api/docs/websocket-v2/trade
 
     def __init__(self, pairs: List[str]):
         self.pairs = pairs
@@ -19,7 +22,7 @@ class KrakenWebsocketAPI:
             self._ws_client = await websockets.connect(self.URL)
             await self._subscribe()
             logger.info("Connected to Kraken WebSocket.")
-            
+
         except Exception as e:
             logger.error(f"Failed to connect to WebSocket: {e}")
             raise RuntimeError("WebSocket connection failed") from e
@@ -36,11 +39,11 @@ class KrakenWebsocketAPI:
             if 'heartbeat' in data:
                 logger.info("Heartbeat received")
                 return []
-            
+
             # Transform raw string into a JSON object
             data = json.loads(data)
             trades_data = data.get('data', [])
-            
+
             trades = [
                 Trade.from_kraken_api_response(
                     pair=trade['symbol'],
@@ -77,10 +80,10 @@ class KrakenWebsocketAPI:
                 }
             }))
             # Wait for confirmation of subscription
-            for pair in self.pairs:
+            for _ in self.pairs:
                 confirmation = await self._ws_client.recv()
                 logger.debug(f"Subscription confirmation: {confirmation}")
-                
+
         except Exception as e:
             logger.error(f"Error during WebSocket subscription: {e}")
             raise RuntimeError("WebSocket subscription failed") from e

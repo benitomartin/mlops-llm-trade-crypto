@@ -1,5 +1,7 @@
 from loguru import logger
+
 from kraken_api.mock import KrakenMockAPI
+
 
 def main():
     """
@@ -20,14 +22,14 @@ def main():
 
     # Initialize the Kraken API
     kraken_api = KrakenMockAPI(pair="BTC/USD")
-    
+
     while True:
         trades = kraken_api.get_trades()
 
         for trade in trades:
-            
+
             logger.info(f'Pushed trade to Kafka: {trade}')
-    
-    
+
+
 if __name__ == "__main__":
     main()

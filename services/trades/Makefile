@@ -1,13 +1,16 @@
 # Makefile
 
-.PHONY: run req help clean
+.PHONY: run req help clean ruff
 
 req: ## Install requirements
-	uv pip install -r pyproject.toml 
+	uv pip install -r pyproject.toml --all-extras
 	uv lock
 
 run: ## Run Trades Service App
 	uv run python run.py
+
+ruff: ## Run Ruff linter 
+	ruff check . --fix --exit-non-zero-on-fix --show-fixes
 
 clean: ## Clean up generated files
 	rm -rf __pycache__
