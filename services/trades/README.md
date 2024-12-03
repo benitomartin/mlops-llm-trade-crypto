@@ -2,14 +2,11 @@
 
 Kraken API → WebSocket → Trades Service App (Quix Streams Initialization) → Set Up Trades Kafka (Redpanda) Topic → Quix Streams Producer (write serialized data)
 
-
 <p align="center">
 
 <img width="623" alt="Captura de pantalla 2024-12-03 124748" src="https://github.com/user-attachments/assets/53765778-4ece-4a05-bed3-fb45f7d9cc55">
 
 </p>
-
-
 
 ## Steps
 

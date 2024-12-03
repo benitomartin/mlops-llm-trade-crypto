@@ -2,6 +2,15 @@ from loguru import logger
 from quixstreams import Application
 
 from kraken_api.websocket import KrakenWebsocketAPI
+import signal
+import sys
+
+def signal_handler(sig, frame):
+    logger.info("Shutting down trades service...")
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 
 def main(
     kafka_broker_address: str,
@@ -42,18 +51,21 @@ def main(
             trades = kraken_api.get_trades()
 
             for trade in trades:
-                # Serialize the trade as bytes
-                message = topic.serialize(
-                    key=trade.pair,
-                    value=trade.to_str(),
-                )
+                try:
+                    # Serialize the trade as bytes
+                    message = topic.serialize(
+                        key=trade.pair,
+                        value=trade.to_str(),
+                    )
 
-                # Push the serialized message to the topic
-                producer.produce(
-                    topic=topic.name, value=message.value, key=message.key
-                )
+                    # Push the serialized message to the topic
+                    producer.produce(
+                        topic=topic.name, value=message.value, key=message.key
+                    )
+                    logger.info(f"Pushed trade to Kafka: {trade}")
                 
-                logger.info(f'Pushed trade to Kafka: {trade}')
+                except Exception as e:
+                    logger.error(f"Error producing trade to Kafka: {e}")
         
     
 if __name__ == "__main__":
