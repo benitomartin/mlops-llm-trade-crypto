@@ -1,4 +1,4 @@
-# Trades Workflow
+# Trades Service App
 
 Kraken API → WebSocket → Trades Service App (Quix Streams Initialization) → Set Up Trades Kafka (Redpanda) Topic → Quix Streams Producer (write serialized data)
 
@@ -103,3 +103,30 @@ Key Features:
 - Time-Series Insights: Capture data as time-series for storage or advanced analytics.
 
 [Quix Streams Documentation](https://quix.io/docs/quix-streams/producer.html)
+
+## Set up your environment
+
+To create a new environment for this service and create a lockfile, run:
+
+    ```bash
+    uv venv -p 3.11.0 .venv
+    source .venv/bin/activate
+
+    make req
+    ```
+
+## Commands
+
+From `docker-compose` folder:
+
+    # Start single Redpanda broker and Redpanda Console
+    make start-redpanda
+
+    # Stop single Redpanda broker and Redpanda Console
+    make stop-redpanda
+
+From `service/trades` folder:
+
+    ```
+    # Start trade streaming service
+    ```
