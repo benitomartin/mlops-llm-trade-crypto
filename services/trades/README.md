@@ -79,7 +79,16 @@ Key Features:
 - Real-Time Streaming: Produce (write) and consume (read) streams of data in real time.
 - Scalability: Handles high volumes of data ingestion and partitioning.
 
+Consumers are client applications that subscribe to Redpanda topics to **asynchronously** read events. Consumers can store, process, or react to the events.
+
+Redpanda decouples producers from consumers to allow for **asynchronous** event processing, event tracking, event manipulation, and event archiving. Producers and consumers interact with Redpanda using the Apache Kafka® API.
+
+<p align="center">
+<img width="623" alt="Redpanda" src="https://github.com/user-attachments/assets/11d992dc-830c-463d-b261-739f227e7a20">
+</p>
+
 [Redpanda Documentation](https://www.redpanda.com/)
+[Redpanda Asynchronous Request-Reply pattern](https://www.redpanda.com/blog/asynchronous-request-reply-pattern-python-kafka)
 
 ### Trades Service with Redpanda
 

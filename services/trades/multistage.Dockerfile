@@ -1,4 +1,4 @@
-# An example using multi-stage image builds to create a final image without uv.
+# An example using multi-stage image builds a final image without uv.
 # The multistage.Dockerfile example extends the Dockerfile example to use multistage 
 # builds to reduce the final size of the image.
 
