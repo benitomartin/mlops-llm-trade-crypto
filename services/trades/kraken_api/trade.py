@@ -7,9 +7,10 @@ class Trade(BaseModel):
     """
     A trade from the Kraken API.
     """
-    pair: str               # "symbol": "BTC/USD"
+
+    pair: str  # "symbol": "BTC/USD"
     price: float
-    volume: float           # "qty": 40.0
+    volume: float  # "qty": 40.0
     timestamp: datetime
     # timestamp_ms: int
 
@@ -20,7 +21,7 @@ class Trade(BaseModel):
         price: float,
         volume: float,
         timestamp: datetime,
-    ) -> "Trade":
+    ) -> 'Trade':
         return cls(
             pair=pair,
             price=price,

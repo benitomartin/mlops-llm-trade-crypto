@@ -2,15 +2,17 @@
 name = "trades"
 version = "0.1.0"
 description = "MLOps Crypto Trading Real-time Data Service"
+keywords = ["MLOps", "Trading", "LLM", "Machine Learning"]
+authors = [{ name = "Benito Martin"}]
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "loguru>=0.7.2",
+    "pre-commit>=4.0.1",
     "pydantic>=2.9.2",
     "pydantic-settings>=2.6.1",
     "quixstreams==3.3.0",
     "websocket-client>=1.8.0",
-    "websockets>=14.1",
 ]
 
 [project.optional-dependencies]
@@ -19,8 +21,12 @@ dev = [
        "ruff>=0.2.0, <1"
        ]
 
+[tool.ruff]
+line-length = 88
+
 [tool.ruff.lint]
 select = [
+    "C",  # mccabe rules
     "F",  # pyflakes rules
     "E",  # pycodestyle error rules
     "W",  # pycodestyle warning rules
@@ -29,8 +35,10 @@ select = [
 ]
 
 ignore = [
+    "C901",  # max-complexity-10
     "E501",  # line-too-long
 ]
 
 [tool.ruff.format]
 indent-style = "space"
+quote-style = "single"

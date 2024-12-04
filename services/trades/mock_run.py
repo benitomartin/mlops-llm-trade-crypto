@@ -18,18 +18,17 @@ def main():
         None
     """
 
-    logger.info("Start the trades service")
+    logger.info('Start the trades service')
 
     # Initialize the Kraken API
-    kraken_api = KrakenMockAPI(pair="BTC/USD")
+    kraken_api = KrakenMockAPI(pair='BTC/USD')
 
     while True:
         trades = kraken_api.get_trades()
 
         for trade in trades:
-
             logger.info(f'Pushed trade to Kafka: {trade}')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

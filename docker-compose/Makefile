@@ -1,6 +1,6 @@
 # Makefile
 
-.PHONY: start-redpanda stop-redpanda help	
+.PHONY: start-redpanda stop-redpanda help
 
 
 start-redpanda: ## Start single Redpanda broker and Redpanda Console

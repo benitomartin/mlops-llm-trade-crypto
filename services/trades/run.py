@@ -1,6 +1,6 @@
-
 import signal
 import sys
+
 from loguru import logger
 from quixstreams import Application
 
@@ -8,8 +8,9 @@ from kraken_api.websocket import KrakenWebsocketAPI
 
 
 def signal_handler(sig, frame):
-    logger.info("Shutting down trades service...")
+    logger.info('Shutting down trades service...')
     sys.exit(0)
+
 
 # Set up signal handlers for graceful shutdown
 signal.signal(signal.SIGINT, signal_handler)
@@ -25,12 +26,12 @@ def main(kafka_broker_address: str, kafka_topic: str, kraken_api: KrakenWebsocke
         kafka_topic (str): The name of the Kafka topic to which trade data will be published.
         kraken_api (KrakenWebsocketAPI): An instance of the KrakenWebsocketAPI class used to fetch trade data.
     """
-      
-    logger.info("Starting the trades service")
 
-     # Initialize the Quix Streams application.
-     # This class handles all the low-level details to connect to Kafka.
-     # https://quix.io/docs/quix-streams/producer.html
+    logger.info('Starting the trades service')
+
+    # Initialize the Quix Streams application.
+    # This class handles all the low-level details to connect to Kafka.
+    # https://quix.io/docs/quix-streams/producer.html
     app = Application(broker_address=kafka_broker_address)
     topic = app.topic(name=kafka_topic, value_serializer='json')
     producer = app.get_producer()
@@ -48,20 +49,20 @@ def main(kafka_broker_address: str, kafka_topic: str, kraken_api: KrakenWebsocke
                     producer.produce(
                         topic=topic.name, value=message.value, key=message.key
                     )
-                    logger.info(f"Pushed trade to Kafka: {trade}")
+                    logger.info(f'Pushed trade to Kafka: {trade}')
 
                 except Exception as e:
-                    logger.error(f"Error producing trade to Kafka: {e}")
-    
+                    logger.error(f'Error producing trade to Kafka: {e}')
+
     except KeyboardInterrupt:
-        logger.info("Shutting down due to KeyboardInterrupt")
+        logger.info('Shutting down due to KeyboardInterrupt')
     finally:
-        logger.info("Shutting down Quix Streams application")
+        logger.info('Shutting down Quix Streams application')
         app.stop()
         kraken_api.close()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     from config import config
 
     kraken_api = KrakenWebsocketAPI(pairs=config.pairs)
@@ -73,4 +74,4 @@ if __name__ == "__main__":
             kraken_api=kraken_api,
         )
     except Exception as e:
-        logger.error(f"Fatal error in main: {e}")
+        logger.error(f'Fatal error in main: {e}')

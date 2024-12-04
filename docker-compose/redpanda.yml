@@ -6,6 +6,8 @@ name: redpanda-dev-cluster
 networks:
   redpanda_network:
     driver: bridge
+    name: redpanda_network # This is the name of the network that the Redpanda containers will use.
+                           # Added while building the Redpanda cluster in the Docker container.
 volumes:
   redpanda: null
 services:
@@ -17,7 +19,7 @@ services:
       # Address the broker advertises to clients that connect to the Kafka API.
       # Use the internal addresses to connect to the Redpanda brokers'
       # from inside the same Docker network.
-      # Use the external addresses to connect to the Redpanda brokers' 
+      # Use the external addresses to connect to the Redpanda brokers'
       # from outside the Docker network.
       - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092 # KAFKA_BROKER_ADDRESS in .env file to connect to the broker
       - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082

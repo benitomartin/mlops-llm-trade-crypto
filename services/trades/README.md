@@ -131,7 +131,7 @@ From `service/trades` folder:
 For other make commands run:
 
     # Command to run "make help"
-    make 
+    make
 
     # Output sample
     req                            Install requirements

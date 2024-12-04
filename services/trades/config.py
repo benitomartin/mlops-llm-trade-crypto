@@ -9,4 +9,5 @@ class Config(BaseSettings):
     kafka_topic: str
     pairs: List[str]
 
+
 config = Config()
