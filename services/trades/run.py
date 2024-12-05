@@ -43,8 +43,8 @@ def main(kafka_broker_address: str, kafka_topic: str, kraken_api: KrakenWebsocke
             for trade in trades:
                 try:
                     message = topic.serialize(
-                        key=trade.pair,
-                        value=trade.to_str(),
+                        key=trade.pair.replace('/', '-'), # Slashes might git problems in Kafka
+                        value=trade.to_dict(),
                     )
                     producer.produce(
                         topic=topic.name, value=message.value, key=message.key

@@ -61,6 +61,7 @@ class KrakenWebsocketAPI:
 
     def _subscribe(self):
         """Subscribes to the Kraken WebSocket."""
+        # Subscribe request example: https://docs.kraken.com/api/docs/websocket-v2/trade/#subscribe-request
         try:
             subscription_message = json.dumps(
                 {
@@ -68,7 +69,7 @@ class KrakenWebsocketAPI:
                     'params': {
                         'channel': 'trade',
                         'symbol': self.pairs,
-                        'snapshot': True,
+                        'snapshot': False,
                     },
                 }
             )

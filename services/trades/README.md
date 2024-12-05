@@ -36,6 +36,21 @@ The Kraken API provides programmatic access to the Kraken cryptocurrency exchang
 
 [Kraken WebSocket API (Trade) Documentation](https://docs.kraken.com/api/docs/websocket-v2/trade)
 
+Example of subscription message for Kraken API:
+
+    # Sample data
+
+    {
+        "method": "subscribe",
+        "params": {
+            "channel": "trade",
+            "symbol": [
+                "BTC/USD"
+            ],
+            "snapshot": true
+        }
+    }
+
 Example of trade data received via the WebSocket API:
 
     # Sample data
