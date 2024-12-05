@@ -29,6 +29,8 @@ def init_candle(trade: dict) -> dict:
         'low': trade['price'],
         'close': trade['price'],
         'volume': trade['volume'],
+        'timestamp_ms': trade['timestamp_ms'],
+        'pair': trade['pair'],
     }
 
 def update_candle(candle: dict, trade: dict) -> dict:
@@ -37,8 +39,10 @@ def update_candle(candle: dict, trade: dict) -> dict:
     """
     candle['close'] = trade['price']
     candle['high'] = max(candle['high'], trade['price']) # Max of the candle high (current high of the candle) and new received trade price.
-    candle['low'] = min(candle['low'], trade['price']) # Max of the candle low (current low of the candle) and new received trade price.
-    candle['volume'] += trade['volume'] # Sum of the candle volume (current volume of the candle) and new received trade volume.
+    candle['low'] = min(candle['low'], trade['price'])   # Max of the candle low (current low of the candle) and new received trade price.
+    candle['volume'] += trade['volume']                  # Sum of the candle volume (current volume of the candle) and new received trade volume.
+    candle['timestamp_ms'] = trade['timestamp_ms']
+    candle['pair'] = trade['pair']
     return candle
 
 
@@ -99,13 +103,43 @@ def main(
         # Create a "reduce" aggregation with "reducer" and "initializer" functions
         .reduce(reducer=update_candle, initializer=init_candle)
         # Emit results only for closed windows. Use .current() to emit results immediately
-        .final()
+        .current()
     )
+
+    # Extract open, high, low, close, volume, timestamp_ms, pair from the dataframe
+    # to make them keys and not being nested in the value
+    sdf['open'] = sdf['value']['open']
+    sdf['high'] = sdf['value']['high']
+    sdf['low'] = sdf['value']['low']
+    sdf['close'] = sdf['value']['close']
+    sdf['volume'] = sdf['value']['volume']
+    sdf['timestamp_ms'] = sdf['value']['timestamp_ms']
+    sdf['pair'] = sdf['value']['pair']
+
+    # Extract window start and end timestamps
+    sdf['window_start_ms'] = sdf['start']
+    sdf['window_end_ms'] = sdf['end']
+
+
+    # Keep only the relevant columns
+    sdf = sdf[
+        [
+            'pair',
+            'timestamp_ms',
+            'open',
+            'high',
+            'low',
+            'close',
+            'volume',
+            'window_start_ms',
+            'window_end_ms',
+        ]
+    ]
 
     # With the follwoing line, we can see the candle values in the logs
     # Othewise you only see them in the output topic in Redpanda
     sdf = sdf.update(lambda value: logger.info(f'Candle: {value}'))
-    # sdf = sdf.update(lambda _: breakpoint())
+    # sdf = sdf.update(lambda value: breakpoint()) # Set to current() instead of final() above to see the candle values in the logs
 
     # Push the candle to the output topic
     sdf = sdf.to_topic(topic=output_topic)

@@ -54,6 +54,7 @@ ruff: ## Run Ruff linter
 
 clean: ## Clean up generated files
 	rm -rf __pycache__
+	tm -rf .ruff_cache
 
 help: ## Display this help message
 	@echo "Available targets:"
