@@ -9,12 +9,23 @@ req: ## Install requirements
 run-dev: ## Run Trades Service App
 	uv run python run.py
 
+# This image is optimized for production use
+build: ## Build the Docker image (optimized)
+	docker build -f Dockerfile -t candles .
+
+run: ## Run (optimized) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
+	$(MAKE) build
+	docker run -it \
+		--network redpanda_network \
+		-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
+		candles
+
 ruff: ## Run Ruff linter
 	ruff check . --fix --exit-non-zero-on-fix --show-fixes
 
 clean: ## Clean up generated files
 	rm -rf __pycache__
-	tm -rf .ruff_cache
+	rm -rf .ruff_cache
 
 help: ## Display this help message
 	@echo "Available targets:"

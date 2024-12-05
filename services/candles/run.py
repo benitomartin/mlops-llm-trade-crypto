@@ -2,6 +2,7 @@ from datetime import timedelta
 from typing import Any, List, Optional, Tuple
 
 from loguru import logger
+from quixstreams import Application
 from quixstreams.models import TimestampType
 
 
@@ -52,6 +53,7 @@ def main(
     kafka_output_topic: str,
     kafka_consumer_group: str,
     candle_seconds: int,
+    emit_incomplete_candles: bool,
 ):
     """
     3 steps:
@@ -65,13 +67,12 @@ def main(
         kafka_output_topic (str): Kafka output topic
         kafka_consumer_group (str): Kafka consumer group
         candle_seconds (int): Candle seconds
+        emit_incomplete_candles (bool): Emit incomplete candles or just the final one
     Returns:
         None
     """
     logger.info('Starting the candles service!')
 
-
-    from quixstreams import Application
 
     # Consuming data from Kafka
     # https://quix.io/docs/quix-streams/quickstart.html#getting-help
@@ -102,9 +103,14 @@ def main(
         sdf.tumbling_window(timedelta(seconds=candle_seconds))
         # Create a "reduce" aggregation with "reducer" and "initializer" functions
         .reduce(reducer=update_candle, initializer=init_candle)
-        # Emit results only for closed windows. Use .current() to emit results immediately
-        .current()
     )
+
+    if emit_incomplete_candles:
+        # Emit all intermediate candles to make the system more responsive
+        sdf = sdf.current()
+    else:
+        # Emit only the final candle
+        sdf = sdf.final()
 
     # Extract open, high, low, close, volume, timestamp_ms, pair from the dataframe
     # to make them keys and not being nested in the value
@@ -156,4 +162,5 @@ if __name__ == '__main__':
         kafka_output_topic=config.kafka_output_topic,
         kafka_consumer_group=config.kafka_consumer_group,
         candle_seconds=config.candle_seconds,
+        emit_incomplete_candles=config.emit_incomplete_candles,
     )

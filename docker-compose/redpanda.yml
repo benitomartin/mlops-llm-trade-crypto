@@ -2,6 +2,7 @@
 ## https://docs.redpanda.com/current/get-started/quick-start/
 ## docker-compose.yml
 
+# NETWORK
 name: redpanda-dev-cluster
 networks:
   redpanda_network:
@@ -10,12 +11,29 @@ networks:
                            # Added while building the Redpanda cluster in the Docker container.
 volumes:
   redpanda: null
+
+# SERVICES
+# There are two services in this file: redpanda and console.
+# Each service is a container that runs a different part of the Redpanda stack.
 services:
+
+  # REDPANDA SERVICE
   redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.2.12
+    container_name: redpanda
+    volumes:
+      - redpanda:/var/lib/redpanda/data
+    networks:
+      - redpanda_network # This is the network that the Redpanda containers will use.
+    ports:
+      - 18081:18081
+      - 18082:18082
+      - 19092:19092
+      - 19644:9644
     command:
       - redpanda
       - start
-      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092 # Internal is used in the Docker network (Dockerfile), external is used outside the Docker network.
       # Address the broker advertises to clients that connect to the Kafka API.
       # Use the internal addresses to connect to the Redpanda brokers'
       # from inside the same Docker network.
@@ -34,22 +52,13 @@ services:
       # Tells Seastar (the framework Redpanda uses under the hood) to use 1 core on the system.
       - --smp 1
       - --default-log-level=info
-    image: docker.redpanda.com/redpandadata/redpanda:v24.2.12
-    container_name: redpanda
-    volumes:
-      - redpanda:/var/lib/redpanda/data
-    networks:
-      - redpanda_network
-    ports:
-      - 18081:18081
-      - 18082:18082
-      - 19092:19092
-      - 19644:9644
+
+  # CONSOLE SERVICE (depends on redpanda )
   console:
     container_name: redpanda-console
     image: docker.redpanda.com/redpandadata/console:v2.7.2
     networks:
-      - redpanda_network
+      - redpanda_network # This is the network that the Redpanda containers will use.
     entrypoint: /bin/sh
     command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console'
     environment:

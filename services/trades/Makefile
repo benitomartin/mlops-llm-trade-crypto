@@ -25,7 +25,7 @@ run: ## Run (optimized) the Docker container using the internal port (see redpan
 #-------#
 # This image is more optimized for production use, as it is a multi-stage build and
 # reduces the size of the final image
-: ## Build the Docker image (multi)
+build-multi: ## Build the Docker image (multi)
 	docker build -f multistage.Dockerfile -t trades_multi .
 
 run-multi: ## Run (multi) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
@@ -54,7 +54,7 @@ ruff: ## Run Ruff linter
 
 clean: ## Clean up generated files
 	rm -rf __pycache__
-	tm -rf .ruff_cache
+	rm -rf .ruff_cache
 
 help: ## Display this help message
 	@echo "Available targets:"
