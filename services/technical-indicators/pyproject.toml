@@ -1,7 +1,25 @@
 [project]
 name = "technical-indicators"
 version = "0.1.0"
-description = "Add your description here"
+description = "MLOps Crypto Trading Real-time Data Service"
+keywords = ["MLOps", "Trading", "LLM", "Machine Learning"]
+authors = [{ name = "Benito Martin"}]
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "loguru>=0.7.2",
+    "pydantic-settings>=2.6.1",
+    "quixstreams>=3.4.0",
+    "ta-lib>=0.5.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pip>=24.3.1",
+    "ruff>=0.8.2",
+]
+
+# # Build system configuration
+# [build-system]                                                 
+# requires = ["hatchling"]
+# build-backend = "hatchling.build"
