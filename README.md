@@ -12,5 +12,5 @@ MLOps project based on [Kraken WebSocket API (Trade)](https://docs.kraken.com/ap
 </p>
 
 <p align="center">
-<img width="623" height="300" alt="ti" src="https://github.com/user-attachments/assets/895fcdd9-c7b9-4eb8-a736-a3c49465ee36">
+<img width="623" height="300" alt="ti" src="https://github.com/user-attachments/assets/2628638e-a507-4458-8cdf-ba19cd6d2ac5">
 </p>
