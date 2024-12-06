@@ -10,7 +10,6 @@ def main(
     kafka_consumer_group: str,
     # max_candles_in_state: int,
 ):
-
     logger.info('Hello from technical-indicators!')
 
     app = Application(
@@ -36,7 +35,6 @@ def main(
 
     # # Compute the technical indicators from the candles in the state
     # sdf = sdf.apply(compute_indicators, stateful=True)
-
 
     sdf = sdf.update(lambda value: logger.debug(f'Final message: {value}'))
 

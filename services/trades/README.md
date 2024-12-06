@@ -1,11 +1,9 @@
 # Trades Service App
 
-Kraken API → WebSocket → Trades Service App (Quix Streams Initialization) → Set Up Trades Kafka (Redpanda) Topic → Quix Streams Producer (write serialized data)
+Kraken API → WebSocket → Trades Service App (Quix Streams Initialization) → Set Up Trades Kafka (Redpanda) Topic → Quix Streams Producer (write serialized data to Kafka topic)
 
 <p align="center">
-
-<img width="623" alt="Captura de pantalla 2024-12-03 124748" src="https://github.com/user-attachments/assets/53765778-4ece-4a05-bed3-fb45f7d9cc55">
-
+<img width="623" height="300" alt="trades" src="https://github.com/user-attachments/assets/bcdb5af3-eb7f-4433-8e2e-22d42422c48b">
 </p>
 
 ## Steps
@@ -134,6 +132,9 @@ To create a new environment for this service and create a lockfile, run:
 
     uv venv -p 3.11.0 .venv
     source .venv/bin/activate
+
+    # Install `uv` optional dependencies:
+    uv add pip --optional dev
 
     make req
 

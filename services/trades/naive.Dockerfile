@@ -2,7 +2,7 @@
 # Dockerfile not optimized for production, but for development
 # As it is not caching through the use of the --mount flag
 # The project dependencies are installed twice
-# with the ADD and RUN command, which is not optimal for production 
+# with the ADD and RUN command, which is not optimal for production
 # base layer based on Linux Debian
 FROM python:3.11-slim-bookworm
 

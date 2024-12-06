@@ -6,9 +6,8 @@ MAX_CANDLES_IN_STATE = config.max_candles_in_state
 
 
 def update_candles(candle: dict, state: State) -> dict:
-
     # Get the list of candles from our state
-    candles = state.get('candles', default=[]) # We have a list of candles in the state
+    candles = state.get('candles', default=[])  # We have a list of candles in the state
 
     # If the state is empty, we just append the latest candle to the list
     if not candles:
@@ -30,7 +29,6 @@ def update_candles(candle: dict, state: State) -> dict:
     # This can happen for low volume pairs. In this case, we could interpoalte the missing windows
 
     logger.debug(f'Number of candles in state for {candle["pair"]}: {len(candles)}')
-
 
     # Update the state with the new list of candles
     state.set('candles', candles)

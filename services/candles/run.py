@@ -17,7 +17,7 @@ def custom_ts_extractor(
     """
     Specifying a custom timestamp extractor to use the timestamp from the message payload instead of Kafka timestamp.
     """
-    return value["timestamp_ms"]
+    return value['timestamp_ms']
 
 
 def init_candle(trade: dict) -> dict:
@@ -34,14 +34,21 @@ def init_candle(trade: dict) -> dict:
         'pair': trade['pair'],
     }
 
+
 def update_candle(candle: dict, trade: dict) -> dict:
     """
     Update the candle with the latest trade
     """
     candle['close'] = trade['price']
-    candle['high'] = max(candle['high'], trade['price']) # Max of the candle high (current high of the candle) and new received trade price.
-    candle['low'] = min(candle['low'], trade['price'])   # Max of the candle low (current low of the candle) and new received trade price.
-    candle['volume'] += trade['volume']                  # Sum of the candle volume (current volume of the candle) and new received trade volume.
+    candle['high'] = max(
+        candle['high'], trade['price']
+    )  # Max of the candle high (current high of the candle) and new received trade price.
+    candle['low'] = min(
+        candle['low'], trade['price']
+    )  # Max of the candle low (current low of the candle) and new received trade price.
+    candle['volume'] += trade[
+        'volume'
+    ]  # Sum of the candle volume (current volume of the candle) and new received trade volume.
     candle['timestamp_ms'] = trade['timestamp_ms']
     candle['pair'] = trade['pair']
     return candle
@@ -73,7 +80,6 @@ def main(
     """
     logger.info('Starting the candles service!')
 
-
     # Consuming data from Kafka
     # https://quix.io/docs/quix-streams/quickstart.html#getting-help
     # Initialize the Quix Streams application
@@ -86,7 +92,7 @@ def main(
     input_topic = app.topic(
         name=kafka_input_topic,
         value_deserializer='json',
-        timestamp_extractor=custom_ts_extractor, # To use the "timestamp_ms" in window aggregations
+        timestamp_extractor=custom_ts_extractor,  # To use the "timestamp_ms" in window aggregations
     )
 
     output_topic = app.topic(
@@ -94,9 +100,8 @@ def main(
         value_serializer='json',
     )
 
-       # Create a Streaming DataFrame from the input topic
+    # Create a Streaming DataFrame from the input topic
     sdf = app.dataframe(topic=input_topic)
-
 
     sdf = (
         # Define a tumbling window of 10 minutes
@@ -126,7 +131,6 @@ def main(
     sdf['window_start_ms'] = sdf['start']
     sdf['window_end_ms'] = sdf['end']
 
-
     # Keep only the relevant columns
     sdf = sdf[
         [
@@ -152,6 +156,7 @@ def main(
 
     # Start the application
     app.run()
+
 
 if __name__ == '__main__':
     from config import config

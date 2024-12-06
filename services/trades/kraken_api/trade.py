@@ -32,7 +32,9 @@ class Trade(BaseModel):
 
     @staticmethod
     def _datestr2milliseconds(datestr: str) -> int:
-        return int(datetime.strptime(datestr, '%Y-%m-%dT%H:%M:%S.%fZ').timestamp() * 1000)
+        return int(
+            datetime.strptime(datestr, '%Y-%m-%dT%H:%M:%S.%fZ').timestamp() * 1000
+        )
 
     def to_str(self) -> str:
         # pydantic method to convert the model to a dict

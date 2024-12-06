@@ -37,7 +37,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 ENV PATH="/app/.venv/bin:$PATH"
 
 # Reset the default entrypoint of the base image
-#  ghcr.io/astral-sh/uv (don't invoke `uv`) 
+#  ghcr.io/astral-sh/uv (don't invoke `uv`)
 ENTRYPOINT []
 
 # Run the Python service

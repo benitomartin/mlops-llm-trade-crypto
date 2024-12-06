@@ -19,6 +19,6 @@ dev = [
 ]
 
 # # Build system configuration
-# [build-system]                                                 
+# [build-system]
 # requires = ["hatchling"]
 # build-backend = "hatchling.build"

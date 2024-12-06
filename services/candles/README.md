@@ -1,10 +1,14 @@
 # Candles Service App
 
-Install `uv` optional dependencies:
+Trades Service App → Candles Service App (Quix Streams Initialization) → Quix Streams Consumer Group → Set Up Candles Kafka (Redpanda) Topic →  Quix Streams Consumer Group (publishes the generated candles)
 
-    uv add pip --optional dev
+<p align="center">
+<img width="623" height="300" alt="trades" src="https://github.com/user-attachments/assets/c2659ce5-1893-48ed-a365-3165c6984845">
+</p>
 
-The `.env` file contains ne variables. like consumer group, candle timeframe and whether to use current() or final() depending on whether to emit the candles immediatelly or after each 60 seconds
+## Set Up
+
+The `.env` file contains env. variables. like consumer group, candle time frame and whether to use current() or final() depending on whether to emit the candles immediately or after each 60 seconds
 
     KAFKA_BROKER_ADDRESS=localhost:19092 # from redpanda.yml --advertise-kafka-addr external://localhost:19092 to connect to the broker
     KAFKA_INPUT_TOPIC=trades
@@ -13,20 +17,76 @@ The `.env` file contains ne variables. like consumer group, candle timeframe and
     CANDLE_SECONDS=60
     EMIT_INCOMPLETE_CANDLES=True
 
+## Steps
+
+The "Candles Service App" serves as both a consumer (of the Trades topic) and a producer (for the Candles topic).
+
+### Trades Service App → Quix Streams Consumer Group
+
+- Consumes raw trade data from the Kafka Trades topic using Quix Streams.
+
+- Aggregates this data into 60-second candles using a tumbling window approach.
+
+### Set Up Candles Kafka (Redpanda) Topic
+
+- A Kafka topic is set up in Redpanda to store and stream the candles data.
+
+### Quix Streams Consumer Group → Write Data to Candles Kafka Topic
+
+- After processing, the Quix Streams Consumer Group publishes the generated candles to the Kafka Candles topic in Redpanda.
+
 ## Partitions
 
-While running both, trades and candles, each on a terminal, if you try to run candles on a separate one, it won't work and will stay idle. Then, if we stop the activa candle topic, the idle treminal will automatically start running.
+While running both, trades and candles, each on a terminal, if you try to run candles on a separate one, it won't work and will stay idle. Then, if we stop the active candle topic, the idle terminal will automatically start running.
 
 But doing partitions, will allow to scale up and down as kafka assigns consumers to partitions, so that the candles can run on 2 or more terminals (partitions).
+
+## Set up your environment
+
+To create a new environment for this service and create a lockfile, run:
+
+    uv venv -p 3.11.0 .venv
+    source .venv/bin/activate
+
+    # Install `uv` optional dependencies:
+    uv add pip --optional dev
+
+    make req
+
+## Commands
+
+From `docker-compose` folder:
+
+    # Start single Redpanda broker and Redpanda Console
+    make start-redpanda
+
+    # Stop single Redpanda broker and Redpanda Console
+    make stop-redpanda
+
+From `service/candles` folder:
+
+    # Start candles streaming service
+    make run
+
+For other make commands run:
+
+    # Command to run "make help"
+    make
+
+    # Output sample
+    req                            Install requirements
+    run                            Run Trades Service App
+    ruff                           Run Ruff linter
+    clean                          Clean up generated files
+    help                           Display this help message
 
 ## Inspect docker network
 
     docker network ls
 
-    docker network ls --filter driver=bridge 
+    docker network ls --filter driver=bridge
 
     docker network inspect redpanda_network
-
 
 The inspect command shall give both containers as per `redpanda.yml` file under `Containers`:
 
