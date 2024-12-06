@@ -2,9 +2,7 @@
 
 Candles Service App → Technical Indicators Service App (Quix Streams Initialization) → Quix Streams Consumer Group → Set Up Technical Indicators Kafka (Redpanda) Topic →  Quix Streams Consumer Group (publishes the generated 60 candles history)
 
-<p align="center">
-<img width="623" height="300" alt="ti" src="https://github.com/user-attachments/assets/2628638e-a507-4458-8cdf-ba19cd6d2ac5">
-</p>
+![ti](https://github.com/user-attachments/assets/2628638e-a507-4458-8cdf-ba19cd6d2ac5)
 
 ## Stateful Applications
 
