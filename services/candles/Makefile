@@ -1,6 +1,6 @@
 # Makefile
 
-.PHONY: run-dev req help clean ruff
+.PHONY: req run-dev build run clean ruff help
 
 req: ## Install requirements
 	uv pip install -r pyproject.toml --all-extras
