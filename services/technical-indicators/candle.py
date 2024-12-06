@@ -26,7 +26,7 @@ def update_candles(candle: dict, state: State) -> dict:
         candles.pop(0)
 
     # TODO: we should check the candles have no missing windows
-    # This can happen for low volume pairs. In this case, we could interpoalte the missing windows
+    # This can happen for low volume pairs. In this case, we could interpolate the missing windows
 
     logger.debug(f'Number of candles in state for {candle["pair"]}: {len(candles)}')
 

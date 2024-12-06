@@ -3,19 +3,8 @@
 Trades Service App → Candles Service App (Quix Streams Initialization) → Quix Streams Consumer Group → Set Up Candles Kafka (Redpanda) Topic →  Quix Streams Consumer Group (publishes the generated candles)
 
 <p align="center">
-<img width="623" height="300" alt="trades" src="https://github.com/user-attachments/assets/c2659ce5-1893-48ed-a365-3165c6984845">
+<img width="623" height="300" alt="candles" src="https://github.com/user-attachments/assets/3e4b6fd5-8a11-453c-9a77-a58aa0a8a59e">
 </p>
-
-## Set Up
-
-The `.env` file contains env. variables. like consumer group, candle time frame and whether to use current() or final() depending on whether to emit the candles immediately or after each 60 seconds
-
-    KAFKA_BROKER_ADDRESS=localhost:19092 # from redpanda.yml --advertise-kafka-addr external://localhost:19092 to connect to the broker
-    KAFKA_INPUT_TOPIC=trades
-    KAFKA_OUTPUT_TOPIC=candles
-    KAFKA_CONSUMER_GROUP=candles_consumer_group
-    CANDLE_SECONDS=60
-    EMIT_INCOMPLETE_CANDLES=True
 
 ## Steps
 
@@ -52,6 +41,15 @@ To create a new environment for this service and create a lockfile, run:
     uv add pip --optional dev
 
     make req
+
+The `.env` file contains env. variables. like consumer group, candle time frame and whether to use current() or final() depending on whether to emit the candles immediately or after each 60 seconds
+
+    KAFKA_BROKER_ADDRESS=localhost:19092 # from redpanda.yml --advertise-kafka-addr external://localhost:19092 to connect to the broker
+    KAFKA_INPUT_TOPIC=trades
+    KAFKA_OUTPUT_TOPIC=candles
+    KAFKA_CONSUMER_GROUP=candles_consumer_group
+    CANDLE_SECONDS=60
+    EMIT_INCOMPLETE_CANDLES=True
 
 ## Commands
 
