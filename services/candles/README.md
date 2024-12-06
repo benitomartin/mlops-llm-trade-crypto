@@ -66,6 +66,8 @@ From `service/candles` folder:
     # Start candles streaming service
     make run
 
+After starting the streaming service, a `state` folder will be generated under the consumer group name and by restarting it will continue after the last state.
+
 For other make commands run:
 
     # Command to run "make help"

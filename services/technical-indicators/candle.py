@@ -6,6 +6,21 @@ MAX_CANDLES_IN_STATE = config.max_candles_in_state
 
 
 def update_candles(candle: dict, state: State) -> dict:
+    """
+    Updates the list of candles we have in our state using the latest candle
+
+    If the latest candle corresponds to a new window, and the total number
+    of candles in the state is less than the number of candles we want to keep,
+    we just append it to the list.
+
+    If it corresponds to the last window, we replace the last candle in the list.
+
+    Args:
+        candle: The latest candle
+        state: The state of our application
+    Returns:
+        candle: The latest candle
+    """
     # Get the list of candles from our state
     candles = state.get('candles', default=[])  # We have a list of candles in the state
 
@@ -38,7 +53,7 @@ def update_candles(candle: dict, state: State) -> dict:
 
 def same_window(candle_1: dict, candle_2: dict) -> bool:
     """
-    Check if the current candle is in the same window as the last candle
+    Check if the current candle is in the same window as the last candle, and also the same currency pair
     Args:
         candle (dict): The current candle
         last_candle (dict): The last candle in the list

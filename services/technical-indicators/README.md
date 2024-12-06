@@ -53,6 +53,8 @@ Then add it to the `pyproject.toml` file
 
     uv add ta-lib
 
+[TA Lib Python Documentation](https://ta-lib.github.io/ta-lib-python/)
+
 ## Commands
 
 From `docker-compose` folder:
@@ -67,6 +69,8 @@ From `service/technical-indicators` folder:
 
     # Start technical indicators streaming service
     make run
+
+After starting the streaming service, a `state` folder will be generated under the consumer group name and by restarting it will continue after the last state.
 
 For other make commands run:
 
