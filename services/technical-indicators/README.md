@@ -40,6 +40,20 @@ The "Technical Indicators Service App" serves as both a consumer (of the Candles
 
 ## Set Up
 
+To create a new environment for this service and create a lockfile, run the following command from the `services` folder:
+
+    uv init --no-workspace technical-indicators
+    cd technical-indicators
+    source .venv/bin/activate
+
+    # Install dependencies:
+    uv add pip
+
+    # Install `uv` optional dependencies:
+    uv add pip --optional dev
+
+    make req
+
 It requires the installation of the TA-lib library. As it is a C library it must be installed first as per this [repository](https://github.com/TA-Lib/ta-lib-python)
 
     wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz

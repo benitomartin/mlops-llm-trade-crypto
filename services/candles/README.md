@@ -30,10 +30,14 @@ But doing partitions, will allow to scale up and down as kafka assigns consumers
 
 ## Set up your environment
 
-To create a new environment for this service and create a lockfile, run:
+To create a new environment for this service and create a lockfile, run the following command from the `services` folder:
 
-    uv venv -p 3.11.0 .venv
+    uv init --no-workspace candles
+    cd candles
     source .venv/bin/activate
+
+    # Install dependencies:
+    uv add pip
 
     # Install `uv` optional dependencies:
     uv add pip --optional dev

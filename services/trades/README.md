@@ -125,10 +125,14 @@ Key Features:
 
 ## Set up your environment
 
-To create a new environment for this service and create a lockfile, run:
+To create a new environment for this service and create a lockfile, run the following command from the `services` folder:
 
-    uv venv -p 3.11.0 .venv
+    uv init --no-workspace trades
+    cd trades
     source .venv/bin/activate
+
+    # Install dependencies:
+    uv add pip
 
     # Install `uv` optional dependencies:
     uv add pip --optional dev
@@ -147,7 +151,7 @@ From `docker-compose` folder:
 
 From `service/trades` folder:
 
-    # Start trade streaming service
+    # Start trades streaming service
     make run
 
 For other make commands run:

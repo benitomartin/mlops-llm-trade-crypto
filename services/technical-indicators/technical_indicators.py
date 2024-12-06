@@ -3,7 +3,9 @@ from quixstreams import State
 from talib import stream
 
 
-def compute_indicators(candle: dict, state: State) -> dict: # Here the candle is our value. See example function in the documentation
+def compute_indicators(
+    candle: dict, state: State
+) -> dict:  # Here the candle is our value. See example function in the documentation
     """
     Computes the technical indicators from the candles in the state
     """
@@ -16,7 +18,7 @@ def compute_indicators(candle: dict, state: State) -> dict: # Here the candle is
     close = np.array([candle['close'] for candle in candles])
     volume = np.array([candle['volume'] for candle in candles])
 
-    indicators = {} # We have in total 10 indicators, and 23 values
+    indicators = {}  # We have in total 10 indicators, and 23 values
 
     # 1. RSI (Relative Strength Index) at 9, 14 and 21
     indicators['rsi_9'] = stream.RSI(close, timeperiod=9)

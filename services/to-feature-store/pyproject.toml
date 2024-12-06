@@ -1,0 +1,42 @@
+[project]
+name = "to-feature-store"
+version = "0.1.0"
+description = "MLOps Crypto Trading Real-time Data Service"
+keywords = ["MLOps", "Trading", "LLM", "Machine Learning"]
+authors = [{ name = "Benito Martin"}]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "loguru>=0.7.3",
+    "pre-commit>=4.0.1",
+    "pydantic-settings>=2.6.1",
+    "quixstreams>=3.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pip>=24.3.1",
+    "ruff>=0.8.2",
+]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "C",  # mccabe rules
+    "F",  # pyflakes rules
+    "E",  # pycodestyle error rules
+    "W",  # pycodestyle warning rules
+    "B",  # flake8-bugbear rules
+    "I",  # isort rules
+]
+
+ignore = [
+    "C901",  # max-complexity-10
+    "E501",  # line-too-long
+]
+
+[tool.ruff.format]
+indent-style = "space"
+quote-style = "single"

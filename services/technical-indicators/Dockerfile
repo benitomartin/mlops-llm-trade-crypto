@@ -4,7 +4,7 @@
 # Use a Python image with uv pre-installed
 FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
 
-#----TA LIB LIBRARY INSTALLATION----#         
+#----TA LIB LIBRARY INSTALLATION----#
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
     gcc \

@@ -146,8 +146,8 @@ def main(
         ]
     ]
 
-    # With the follwoing line, we can see the candle values in the logs
-    # Othewise you only see them in the output topic in Redpanda
+    # With the following line, we can see the candle values in the logs
+    # Otherwise you only see them in the output topic in Redpanda
     sdf = sdf.update(lambda value: logger.info(f'Candle: {value}'))
     # sdf = sdf.update(lambda value: breakpoint()) # Set to current() instead of final() above to see the candle values in the logs
 

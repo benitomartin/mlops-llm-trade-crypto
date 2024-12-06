@@ -1,6 +1,6 @@
 # Makefile
 
-.PHONY: help clean ruff hooks 
+.PHONY: help clean clean-state ruff hooks
 
 hooks: ## Run pre-commit hooks
 	@echo "Running pre-commit hooks..."
@@ -12,9 +12,14 @@ ruff: ## Run Ruff linter
 	ruff check . --fix --exit-non-zero-on-fix --show-fixes
 	@echo "Ruff linter complete."
 
-clean: ## Clean up generated files
+clean: ## Clean up cached generated files
 	@echo "Cleaning up generated files..."
 	find . -type d \( -name "__pycache__" -o -name ".ruff_cache" -o -name ".pytest_cache" \) -exec rm -rf {} +
+	@echo "Cleanup complete."
+
+clean-state: ## Clean state generated files
+	@echo "Cleaning state generated files..."
+	find . -type d -name "state" -exec rm -rf {} +
 	@echo "Cleanup complete."
 
 help: ## Display this help message
