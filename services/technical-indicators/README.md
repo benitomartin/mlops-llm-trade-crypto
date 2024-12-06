@@ -28,6 +28,8 @@ The "Technical Indicators Service App" serves as both a consumer (of the Candles
 
 - Collects the emitted candles into a stateful history.
 
+- Additionally we add to the candles 10 technical indicators, and 23 values. So the final output contains the candles and the indicators for that candles.
+
 - This state acts as an in-memory cache of the last `MAX_CANDLES_IN_STATE` candles variable (e.g., 60 candles).
 
 ### Set Up Technical Indicators  Kafka (Redpanda) Topic
