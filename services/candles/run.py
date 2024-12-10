@@ -146,6 +146,9 @@ def main(
         ]
     ]
 
+    # We add the candle_seconds to the dataframe
+    sdf['candle_seconds'] = candle_seconds
+
     # With the following line, we can see the candle values in the logs
     # Otherwise you only see them in the output topic in Redpanda
     sdf = sdf.update(lambda value: logger.info(f'Candle: {value}'))

@@ -9,13 +9,20 @@ ADD STEPS
 In many stream processing use cases the results need to be written to external destinations to be shared with other subsystems.
 
 [Quix CSVSink](https://quix.io/docs/quix-streams/connectors/sinks/csv-sink.html) to write in external destinations.
+[Custom Sink (Batch)](https://quix.io/docs/quix-streams/connectors/sinks/custom-sinks.html#backpressure-handling)
+
+## Hopsworks
+
+Tutorials for online and batch:
+
+https://docs.hopsworks.ai/latest/tutorials/
 
 ## Set up your environment
 
 To create a new environment for this service and create a lockfile, run the following command from the `services` folder:
 
     uv init --no-workspace to-feature-store
-    cd to-feature-store 
+    cd to-feature-store
     source .venv/bin/activate
 
     # Install dependencies:

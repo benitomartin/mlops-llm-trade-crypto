@@ -7,8 +7,10 @@ authors = [{ name = "Benito Martin"}]
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "hopsworks>=4.1.4",
     "loguru>=0.7.3",
     "pre-commit>=4.0.1",
+    "pyarrow>=18.1.0",
     "pydantic-settings>=2.6.1",
     "quixstreams>=3.4.0",
 ]
