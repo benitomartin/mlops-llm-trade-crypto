@@ -13,7 +13,7 @@ services:
     networks:
       - redpanda_network
     env_file:
-      - ../services/trades/.env
+      - ../services/trades/settings.env
     environment:
       - KAFKA_BROKER_ADDRESS=redpanda:9092
     restart: always # This will restart the container if it crashes. Similar to a Kubernetes pod.

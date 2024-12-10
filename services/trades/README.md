@@ -165,3 +165,7 @@ For other make commands run:
     ruff                           Run Ruff linter
     clean                          Clean up generated files
     help                           Display this help message
+
+# Base.py class
+
+Once the `technical-indicators-pipeline.yml` is working, we add a base class `TradesAPI`, that is derived from Trade class is trade.py.

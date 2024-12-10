@@ -14,8 +14,8 @@ add-one-partition-to-trades-topic: ## Add one partition to the trades topic
 build-technical-indicators-pipeline: ## Build the technical indicators pipeline
 	docker compose -f technical-indicators-pipeline.yml build
 
-start-technical-indicators-pipeline: ## Start the technical indicators pipeline
-	$(MAKE) build-technical-indicators-pipeline
+start-technical-indicators-pipeline: build-technical-indicators-pipeline ## Start the technical indicators pipeline
+	build-technical-indicators-pipeline
 	docker compose -f technical-indicators-pipeline.yml up -d
 
 stop-technical-indicators-pipeline: ## Stop the technical indicators pipeline

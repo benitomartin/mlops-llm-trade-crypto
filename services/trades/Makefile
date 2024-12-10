@@ -6,48 +6,25 @@ req: ## Install requirements
 	uv pip install -r pyproject.toml --all-extras
 	uv lock
 
-run-dev: ## Run Trades Service App
+run-dev-live: ## Run Trades Service App (Live)
+	cp live.settings.env settings.env
 	uv run python run.py
 
-#-------#
-# This image is optimized for production use
-build: ## Build the Docker image (optimized)
-	docker build -f Dockerfile -t trades .
+run-dev-historical: ## Run Trades Service App (Historical)
+	cp historical.settings.env settings.env
+	uv run python run.py
 
-run: ## Run (optimized) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
-	$(MAKE) build
-	docker run -it \
+
+# This image is more optimized for production use, as it is a multi-stage build and
+# reduces the size of the final image
+build: ## Build the Docker image (Multistage)
+	docker build -f multistage.Dockerfile -t trades .
+
+run: build ## Run (Multistage) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
+	 docker run -it \
 		--network redpanda_network \
 		-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
 		trades
-#-------#
-
-#-------#
-# This image is more optimized for production use, as it is a multi-stage build and
-# reduces the size of the final image
-build-multi: ## Build the Docker image (multi)
-	docker build -f multistage.Dockerfile -t trades_multi .
-
-run-multi: ## Run (multi) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
-	$(MAKE) build-multi
-	docker run -it \
-		--network redpanda_network \
-		-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
-		trades_multi
-#-------#
-
-#-------#
-# This image is not optimized for production use, it is just for testing purposes
-build-naive: ## Build the Docker image (naive)
-	docker build -f naive.Dockerfile -t trades_naive .
-
-run-naive: ## Run (naive) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
-	$(MAKE) build-naive
-	docker run -it \
-		--network redpanda_network \
-		-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
-		trades_naive
-#-------#
 
 ruff: ## Run Ruff linter
 	ruff check . --fix --exit-non-zero-on-fix --show-fixes
@@ -61,3 +38,28 @@ help: ## Display this help message
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 .DEFAULT_GOAL := help
+
+
+# #-------#
+# # This image is optimized for production use
+# build-standard: ## Build the Docker image (optimized)
+# 	docker build -f Dockerfile -t trades_standard .
+
+# run-standard: build-standard ## Run (optimized) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
+# 			  docker run -it \
+# 				--network redpanda_network \
+# 				-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
+# 				trades_standard
+# #-------#
+
+# #-------#
+# # This image is not optimized for production use, it is just for testing purposes
+# build-naive: ## Build the Docker image (naive)
+# 	docker build -f naive.Dockerfile -t trades_naive .
+
+# run-naive: build-naive ## Run (naive) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
+# 		   docker run -it \
+# 				--network redpanda_network \
+# 				-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
+# 				trades_naive
+# #-------#

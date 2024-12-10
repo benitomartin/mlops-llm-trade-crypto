@@ -4,10 +4,11 @@ from typing import List
 from loguru import logger
 from websocket import WebSocketConnectionClosedException, create_connection
 
+from .base import TradesAPI
 from .trade import Trade
 
 
-class KrakenWebsocketAPI:
+class KrakenWebsocketAPI(TradesAPI):
     URL = 'wss://ws.kraken.com/v2'  # See Channel: https://docs.kraken.com/api/docs/websocket-v2/trade
 
     def __init__(self, pairs: List[str]):
@@ -58,6 +59,9 @@ class KrakenWebsocketAPI:
         except Exception as e:
             logger.error(f'Unexpected error in WebSocket connection: {e}')
             raise  # Exception propagate to terminate the app
+
+    def is_done(self) -> bool: # This method is derived from the abstract method in the base.py class
+        return False
 
     def _subscribe(self):
         """Subscribes to the Kraken WebSocket."""
