@@ -13,9 +13,13 @@ In many stream processing use cases the results need to be written to external d
 
 ## Hopsworks
 
-Tutorials for online and batch:
+Tutorials for online and batch and API:
 
-https://docs.hopsworks.ai/latest/tutorials/
+[Tutorials](https://docs.hopsworks.ai/latest/tutorials/)
+
+ [API](https://docs.hopsworks.ai/feature-store-api/latest/generated/api/feature_group_api/)
+
+Warnings on the "online table".
 
 ## Set up your environment
 

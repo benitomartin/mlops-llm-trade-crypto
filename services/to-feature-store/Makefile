@@ -9,16 +9,16 @@ req: ## Install requirements
 run-dev: ## Run Trades Service App
 	uv run python run.py
 
-# # This image is optimized for production use
-# build: ## Build the Docker image (optimized)
-# 	docker build -f Dockerfile -t technical-indicators .
+# This image is optimized for production use
+build: ## Build the Docker image (optimized)
+	docker build -f Dockerfile -t to-feature-store .
 
-# run: ## Run (optimized) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
-# 	$(MAKE) build
-# 	docker run -it \
-# 		--network redpanda_network \
-# 		-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
-# 		technical-indicators
+run: ## Run (optimized) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
+	$(MAKE) build
+	docker run -it \
+		--network redpanda_network \
+		-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
+		to-feature-store
 
 ruff: ## Run Ruff linter
 	ruff check . --fix --exit-non-zero-on-fix --show-fixes

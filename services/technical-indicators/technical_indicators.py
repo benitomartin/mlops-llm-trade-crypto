@@ -71,12 +71,12 @@ def compute_indicators(
 
     # 8. MFI (Money Flow Index)
     # Volume-weighted RSI, good for crypto due to volume importance
-    # Timeperiod: 14 is standard, but 10 more responsive for crypto
+    # Time period: 14 is standard, but 10 more responsive for crypto
     indicators['mfi'] = stream.MFI(high, low, close, volume, timeperiod=10)
 
     # 9. ATR (Average True Range)
     # Volatility indicator, crucial for crypto
-    # Shorter timeperiod due to crypto volatility
+    # Shorter time period due to crypto volatility
     indicators['atr'] = stream.ATR(high, low, close, timeperiod=10)
 
     # 10. Price ROC (Rate of Change)
