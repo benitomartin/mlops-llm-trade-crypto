@@ -141,3 +141,14 @@ The inspect command shall give both containers as per `redpanda.yml` file under 
             }
         }
     ]
+
+## Quixstreams
+
+Once our pipeline works, we add a split between historical, live and test data. For that we need to add the following param in the application, `auto_offset_reset`: Consumer auto.offset.reset setting. Available values:
+
+- "earliest" - automatically reset the offset to the smallest offset
+- "latest" - automatically reset the offset to the largest offset
+- "error" - trigger an error (ERR__AUTO_OFFSET_RESET) which is retrieved by consuming messages (used for testing)
+
+`live`: start fetching data continuing where it stopped.
+`earliest`: If test or historical, start fetching data from the beginning (first message in the topic)

@@ -18,7 +18,7 @@ run-dev-historical: ## Run Trades Service App (Historical)
 # This image is more optimized for production use, as it is a multi-stage build and
 # reduces the size of the final image
 build: ## Build the Docker image (Multistage)
-	docker build -f multistage.Dockerfile -t trades .
+	docker build -f Dockerfile -t trades .
 
 run: build ## Run (Multistage) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
 	 docker run -it \
@@ -43,7 +43,7 @@ help: ## Display this help message
 # #-------#
 # # This image is optimized for production use
 # build-standard: ## Build the Docker image (optimized)
-# 	docker build -f Dockerfile -t trades_standard .
+# 	docker build -f onestage.Dockerfile -t trades_standard .
 
 # run-standard: build-standard ## Run (optimized) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
 # 			  docker run -it \

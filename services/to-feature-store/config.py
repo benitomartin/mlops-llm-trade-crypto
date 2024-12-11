@@ -1,8 +1,10 @@
+from typing import Literal
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file='.env')
+    model_config = SettingsConfigDict(env_file='settings.env')
 
     kafka_broker_address: str
     kafka_input_topic: str
@@ -12,6 +14,8 @@ class Settings(BaseSettings):
     feature_group_version: int
     feature_group_primary_keys: list[str]
     feature_group_event_time: str
+
+    data_source: Literal['live', 'historical', 'test']
 
 
 class HopsworksCredentials(BaseSettings):

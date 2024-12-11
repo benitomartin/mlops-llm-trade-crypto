@@ -4,13 +4,6 @@
 # Use a Python image with uv pre-installed
 FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
 
-# Install build dependencies (GCC compiler is required)
-RUN apt-get update && apt-get install -y \
-    gcc \
-    build-essential \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
-
 # Install the project into `/app`
 WORKDIR /app
 

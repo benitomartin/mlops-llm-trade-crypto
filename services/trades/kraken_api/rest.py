@@ -10,11 +10,7 @@ from .trade import Trade
 
 
 class KrakenRestAPI(TradesAPI):
-    def __init__(
-        self,
-        pairs: List[str],
-        last_n_days: int):
-
+    def __init__(self, pairs: List[str], last_n_days: int):
         self.pairs = pairs
 
         # breakpoint()
@@ -51,8 +47,8 @@ class KrakenRestAPI(TradesAPI):
                 return False
         return True
 
-class KrakenRestAPISinglePair(TradesAPI):
 
+class KrakenRestAPISinglePair(TradesAPI):
     URL = 'https://api.kraken.com/0/public/Trades'
 
     def __init__(
@@ -67,11 +63,11 @@ class KrakenRestAPISinglePair(TradesAPI):
         # get current timestamp in nanoseconds
         self.since_timestamp_ns = int(
             time.time_ns() - last_n_days * 24 * 60 * 60 * 1000000000
-            )
+        )
 
         logger.info(
             f'Getting trades for pair {self.pair} for the last {self.since_timestamp_ns * 1000000000} seconds'
-            )
+        )
 
     def get_trades(self) -> List[Trade]:
         """
@@ -84,6 +80,8 @@ class KrakenRestAPISinglePair(TradesAPI):
         }
 
         response = requests.request('GET', self.URL, headers=headers, params=params)
+
+        # TODO: check if we get a an error response. If so, implement a slow-down mechanism
 
         # parse the response as json
         try:
@@ -113,7 +111,7 @@ class KrakenRestAPISinglePair(TradesAPI):
         ]
 
         # update the since_timestamp_ns
-        self.since_timestamp_ns = float(data['result']['last'])
+        self.since_timestamp_ns = int(data['result']['last'])
 
         # check if we are done
         # TODO: check if this stopping conditions really work

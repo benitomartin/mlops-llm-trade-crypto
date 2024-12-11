@@ -41,7 +41,6 @@ def main(kafka_broker_address: str, kafka_topic: str, trades_api: TradesAPI):
 
     try:
         while not trades_api.is_done():
-
             trades = trades_api.get_trades()
 
             for trade in trades:

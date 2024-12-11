@@ -60,7 +60,9 @@ class KrakenWebsocketAPI(TradesAPI):
             logger.error(f'Unexpected error in WebSocket connection: {e}')
             raise  # Exception propagate to terminate the app
 
-    def is_done(self) -> bool: # This method is derived from the abstract method in the base.py class
+    def is_done(
+        self,
+    ) -> bool:  # This method is derived from the abstract method in the base.py class
         return False
 
     def _subscribe(self):

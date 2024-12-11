@@ -13,9 +13,8 @@ run-dev: ## Run Trades Service App
 build: ## Build the Docker image (optimized)
 	docker build -f Dockerfile -t to-feature-store .
 
-run: ## Run (optimized) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
-	$(MAKE) build
-	docker run -it \
+run: build ## Run (optimized) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
+	 docker run -it \
 		--network redpanda_network \
 		-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
 		to-feature-store
