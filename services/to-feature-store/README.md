@@ -21,6 +21,12 @@ Tutorials for online and batch and API:
 
 Warnings on the "online table".
 
+Set a time to see the job in the feature store using `materialization_job`
+
+    FEATURE_GROUP_MATERIALIZATION_INTERVAL_MINUTES=15
+
+In Hopsworks, under ingestions in the features store, you can see the materialization jobs.
+
 ## Set up your environment
 
 To create a new environment for this service and create a lockfile, run the following command from the `services` folder:
@@ -46,3 +52,7 @@ From `docker-compose` folder:
 
     # Stop single Redpanda broker and Redpanda Console
     make stop-redpanda
+
+Check logs last minute:
+
+    docker logs -f --since 1m <CONTAINER_ID>
