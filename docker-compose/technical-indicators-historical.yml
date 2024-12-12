@@ -21,7 +21,8 @@ services:
       - LAST_N_DAYS=30
       - DATA_SOURCE=historical
     # restart: always # This will restart the container if it crashes. Similar to a Kubernetes pod.
-
+    # restart: on-failure
+  
   candles:
     build:
       context: ../services/candles

@@ -6,7 +6,7 @@ req: ## Install requirements
 	uv pip install -r pyproject.toml --all-extras
 	uv lock
 
-run-dev: ## Run Trades Service App
+run-dev: ## Run Candles Service App
 	uv run python run.py
 
 # This image is optimized for production use
