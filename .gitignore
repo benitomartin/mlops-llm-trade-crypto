@@ -167,3 +167,4 @@ cython_debug/
 **/hops_credentials.env
 **/*.csv
 **/cryptopanic_credentials.env
+**/anthropic_credentials.env

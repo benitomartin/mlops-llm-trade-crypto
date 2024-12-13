@@ -9,15 +9,17 @@ req: ## Install requirements
 run-dev: ## Run Technical Indicators Service App
 	uv run python run.py
 
-# # This image is optimized for production use
-# build: ## Build the Docker image (optimized)
-# 	docker build -f Dockerfile -t news .
+# This image is optimized for production use
+build: ## Build the Docker image (optimized)
+	docker build -f Dockerfile -t news .
 
-# run: build ## Run (optimized) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
-# 	 docker run -it \
-# 		--network redpanda_network \
-# 		-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
-# 		news
+run: build ## Run (optimized) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
+	docker run -it \
+			--network redpanda_network \
+    		-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
+			--env-file cryptopanic_credentials.env \
+    		-v news_named_volume:/app/state \
+			news:latest
 
 ruff: ## Run Ruff linter
 	ruff check . --fix --exit-non-zero-on-fix --show-fixes
