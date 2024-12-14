@@ -6,7 +6,7 @@ req: ## Install requirements
 	uv pip install -r pyproject.toml --all-extras
 	uv lock
 
-run-dev: ## Run Technical Indicators Service App
+run-dev: ## Run News Service App
 	uv run python run.py
 
 # This image is optimized for production use

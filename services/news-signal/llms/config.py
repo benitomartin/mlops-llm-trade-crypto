@@ -12,5 +12,8 @@ class AnthropicConfig(BaseSettings):
 # config = AnthropicConfig()
 
 class OllamaConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_file='ollama.env')
+    model_config = SettingsConfigDict(
+        env_file='ollama.env',
+        env_file_encoding='utf-8',
+        )
     llm_name: str

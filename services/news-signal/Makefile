@@ -15,16 +15,27 @@ run-claude: ## Run Claude
 run-ollama: ## Run Ollama
 	uv run python llms/ollama_model.py
 
-# # This image is optimized for production use
-# build: ## Build the Docker image (optimized)
-# 	docker build -f Dockerfile -t news-signal .
+# This image is optimized for production use
+build: ## Build the Docker image (optimized)
+	docker build -f Dockerfile -t news-signal .
 
-# run: build ## Run (optimized) the Docker container using the internal port (see redpanda.yml, advertise-kafka-addr)
-# 	docker run -it \
-# 			--network redpanda_network \
-#     		-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
-# 			--env-file cryptopanic_credentials.env \
-# 			news-signal:latest
+run-with-anthropic: build ## Run with Claude
+	docker run -it \
+			--network redpanda_network \
+    		-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
+			-e MODEL=anthropic \
+			--env-file anthropic_credentials.env \
+    		-v news_signal_named_volume:/app/state \
+			news-signal:latest
+
+run-with-ollama: build ## Run with Ollama
+	docker run -it \
+			--network redpanda_network \
+    		-e KAFKA_BROKER_ADDRESS=redpanda:9092 \
+			--env-file ollama.env \
+			-e MODEL=ollama \
+			-v news_signal_named_volume:/app/state \
+			news-signal:latest
 
 ruff: ## Run Ruff linter
 	ruff check . --fix --exit-non-zero-on-fix --show-fixes

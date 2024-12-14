@@ -10,12 +10,12 @@ dependencies = [
     "llama-index-core>=0.12.5",
     "llama-index-llms-anthropic>=0.5.0",
     "loguru>=0.7.3",
-    "quixstreams>=3.4.0",
     "pydantic-settings>=2.6.1",
     "pydantic>=2.10.3",
     "llama-index-llms-ollama>=0.5.0",
     "ollama>=0.4.4",
     "pre-commit>=4.0.1",
+    "quixstreams>=3.4.0",
 ]
 
 [project.optional-dependencies]

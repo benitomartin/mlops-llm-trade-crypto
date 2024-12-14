@@ -35,8 +35,8 @@ def main(
         lambda value: {
             'news': value['title'],
             **llm.get_signal(value['title']),
-            'model_name': llm.model_name,
-            'timestamp_ms': value['timestamp_ms'],
+            'model_name': llm.llm_name,
+            # 'timestamp_ms': value['timestamp_ms'],
         }
     )
 
@@ -51,8 +51,8 @@ if __name__ == '__main__':
     from config import config
     from llms.factory import get_llm
 
-    logger.info(f'Using model provider: {config.model_provider}')
-    llm = get_llm(config.model_provider)
+    logger.info(f'Using model provider: {config.model}')
+    llm = get_llm(config.model)
 
     main(
         kafka_broker_address=config.kafka_broker_address,

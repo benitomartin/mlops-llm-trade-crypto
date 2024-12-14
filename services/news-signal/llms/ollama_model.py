@@ -1,6 +1,8 @@
+import json
+import re
 from typing import Literal, Optional
 
-from base import BaseNewsSignalExtractor, NewsSignal
+from .base import BaseNewsSignalExtractor, NewsSignal
 from llama_index.core.prompts import PromptTemplate
 from llama_index.llms.ollama import Ollama
 
@@ -16,28 +18,85 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
             temperature=temperature,
         )
 
+        # self.prompt_template = PromptTemplate(
+        #     template="""
+        #     You are a financial analyst.
+        #     You are given a news article and you need to determine the impact of the news on the BTC and ETH price.
+
+        #     You need to output the signal in the following format:
+        #     {
+        #         "btc_signal": 1,
+        #         "eth_signal": 0
+        #     }
+
+        #     The signal is either 1, 0, or -1.
+        #     1 means the price is expected to go up.
+        #     0 means the price is expected to stay the same.
+        #     -1 means the price is expected to go down.
+
+        #     Here is the news article:
+        #     {news_article}
+        #     """
+        # )
+
         self.prompt_template = PromptTemplate(
             template="""
             You are a financial analyst.
             You are given a news article and you need to determine the impact of the news on the BTC and ETH price.
 
-            You need to output the signal in the following format:
+            Respond STRICTLY with a JSON in this EXACT format:
             {
                 "btc_signal": 1,
-                "eth_signal": 0
+                "eth_signal": 0,
+                "reasoning": "Explanation of the signals"
             }
 
-            The signal is either 1, 0, or -1.
-            1 means the price is expected to go up.
-            0 means the price is expected to stay the same.
-            -1 means the price is expected to go down.
+            Rules for signals:
+            - 1 means price is expected to go up
+            - 0 means price is expected to stay the same
+            - -1 means price is expected to go down
 
-            Here is the news article:
-            {news_article}
+            News article: {news_article}
+
+            OUTPUT ONLY THE JSON. NO ADDITIONAL TEXT.
             """
         )
 
         self.llm_name = llm_name
+
+    def extract_json(self, text: str) -> dict:
+        """
+        Extract JSON from the response text using multiple methods
+        """
+        # Method 1: Find JSON between first { and last }
+        try:
+            first_brace = text.index('{')
+            last_brace = text.rindex('}')
+            json_str = text[first_brace:last_brace+1]
+            return json.loads(json_str)
+        except (ValueError, json.JSONDecodeError):
+            pass
+
+        # # Method 2: Simple regex extraction
+        # try:
+        #     json_match = re.search(r'\{[^}]+\}', text)
+        #     if json_match:
+        #         return json.loads(json_match.group(0))
+        # except (AttributeError, json.JSONDecodeError):
+        #     pass
+
+        # # Method 3: Multiple regex attempts
+        # try:
+        #     json_blocks = re.findall(r'\{[^{}]+\}', text)
+        #     for block in json_blocks:
+        #         try:
+        #             return json.loads(block)
+        #         except json.JSONDecodeError:
+        #             continue
+        # except Exception:
+        #     pass
+
+        raise ValueError(f"Could not extract valid JSON from text: {text}")
 
     def get_signal(
         self,
@@ -54,12 +113,41 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
         Returns:
             The news signal
         """
-        try:
+        # try:
 
-            response: NewsSignal = self.llm.structured_predict(
-                NewsSignal,
-                prompt=self.prompt_template,
-                news_article=text,
+        #     response: NewsSignal = self.llm.structured_predict(
+        #         NewsSignal,
+        #         prompt=self.prompt_template,
+        #         news_article=text,
+        #     )
+
+        # except Exception as e:
+        #     print(f"Error occurred during request: {e}")
+        #     raise
+
+
+        # if output_format == 'dict':
+        #     return response.to_dict()
+        # else:
+        #     return response
+
+        try:
+            # Use chat completion and parse the JSON manually
+            response = self.llm.complete(
+                self.prompt_template.format(news_article=text)
+            )
+
+
+            # Parse the JSON response
+            parsed_response = self.extract_json(response.text)
+
+            # breakpoint()
+
+            # Convert to NewsSignal
+            news_signal = NewsSignal(
+                btc_signal=parsed_response['btc_signal'],
+                eth_signal=parsed_response['eth_signal'],
+                reasoning=parsed_response['reasoning']
             )
 
         except Exception as e:
@@ -67,9 +155,10 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
             raise
 
         if output_format == 'dict':
-            return response.to_dict()
+            return news_signal.to_dict()
         else:
-            return response
+            return news_signal
+
 
 
 if __name__ == '__main__':
