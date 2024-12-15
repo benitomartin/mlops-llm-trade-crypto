@@ -48,6 +48,18 @@ clean-backfill-kakfa-topics: ## Remove all Kafka topics that contain the word hi
 	docker compose -f redpanda.yml exec redpanda rpk topic delete -r ".*historical.*"
 
 
+# ===== NEWS SIGNAL =====
+# News signal pipeline management
+build-news-signal-live: ## Build the live news signal pipeline
+	docker compose -f news-signal-live.yml build
+
+start-news-signal-live: build-news-signal-live ## Start the live news signal pipeline
+	docker compose -f news-signal-live.yml up -d
+
+stop-news-signal-live: ## Stop the live news signal pipeline
+	docker compose -f news-signal-live.yml down
+
+
 # ===== HELP =====
 help: ## Display this help message
 	@echo "Available targets:"
