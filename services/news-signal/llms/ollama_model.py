@@ -15,29 +15,10 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
     ):
         self.llm = Ollama(
             model=llm_name,
+            # base_url= "http://localhost:11434",
             temperature=temperature,
         )
 
-        # self.prompt_template = PromptTemplate(
-        #     template="""
-        #     You are a financial analyst.
-        #     You are given a news article and you need to determine the impact of the news on the BTC and ETH price.
-
-        #     You need to output the signal in the following format:
-        #     {
-        #         "btc_signal": 1,
-        #         "eth_signal": 0
-        #     }
-
-        #     The signal is either 1, 0, or -1.
-        #     1 means the price is expected to go up.
-        #     0 means the price is expected to stay the same.
-        #     -1 means the price is expected to go down.
-
-        #     Here is the news article:
-        #     {news_article}
-        #     """
-        # )
 
         self.prompt_template = PromptTemplate(
             template="""
@@ -64,39 +45,29 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
 
         self.llm_name = llm_name
 
-    def extract_json(self, text: str) -> dict:
-        """
-        Extract JSON from the response text using multiple methods
-        """
-        # Method 1: Find JSON between first { and last }
+    # def extract_json(self, text: str) -> dict:
+    #     """
+    #     Extract JSON from the response text using multiple methods
+    #     """
+    #     # Method 1: Find JSON between first { and last }
+    #     try:
+    #         first_brace = text.index('{')
+    #         last_brace = text.rindex('}')
+    #         json_str = text[first_brace:last_brace+1]
+    #         return json.loads(json_str)
+    #     except (ValueError, json.JSONDecodeError):
+    #         pass
+
+    #     raise ValueError(f"Could not extract valid JSON from text: {text}")
+
+
+    def extract_json(self, response_text: str) -> NewsSignal:
         try:
-            first_brace = text.index('{')
-            last_brace = text.rindex('}')
-            json_str = text[first_brace:last_brace+1]
-            return json.loads(json_str)
-        except (ValueError, json.JSONDecodeError):
-            pass
-
-        # # Method 2: Simple regex extraction
-        # try:
-        #     json_match = re.search(r'\{[^}]+\}', text)
-        #     if json_match:
-        #         return json.loads(json_match.group(0))
-        # except (AttributeError, json.JSONDecodeError):
-        #     pass
-
-        # # Method 3: Multiple regex attempts
-        # try:
-        #     json_blocks = re.findall(r'\{[^{}]+\}', text)
-        #     for block in json_blocks:
-        #         try:
-        #             return json.loads(block)
-        #         except json.JSONDecodeError:
-        #             continue
-        # except Exception:
-        #     pass
-
-        raise ValueError(f"Could not extract valid JSON from text: {text}")
+            # Parse and validate using Pydantic
+            data = json.loads(response_text)
+            return data
+        except (ValueError, json.JSONDecodeError) as e:
+            raise ValueError(f"Could not extract valid JSON from text: {e}") from e
 
     def get_signal(
         self,
@@ -113,23 +84,6 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
         Returns:
             The news signal
         """
-        # try:
-
-        #     response: NewsSignal = self.llm.structured_predict(
-        #         NewsSignal,
-        #         prompt=self.prompt_template,
-        #         news_article=text,
-        #     )
-
-        # except Exception as e:
-        #     print(f"Error occurred during request: {e}")
-        #     raise
-
-
-        # if output_format == 'dict':
-        #     return response.to_dict()
-        # else:
-        #     return response
 
         try:
             # Use chat completion and parse the JSON manually
@@ -137,9 +91,10 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
                 self.prompt_template.format(news_article=text)
             )
 
+            parsed_response = self.extract_json(response.text)
 
             # Parse the JSON response
-            parsed_response = self.extract_json(response.text)
+            # parsed_response = self.extract_json(response.text)
 
             # breakpoint()
 
