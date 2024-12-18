@@ -59,6 +59,25 @@ run-with-ollama: build ## Run with Ollama
 			-v news_signal_named_volume:/app/state \
 			news-signal:latest
 
+# ===== FINE TUNING =====
+# To install the dependencies for the GPU instance
+venv-gpu-instance:
+	curl -LsSf https://astral.sh/uv/install.sh | sh && \
+	source $HOME/.local/bin/env && \
+	uv sync --group gpu-instance
+
+# To login to Comet ML during fine-tuning
+login-comet:
+	uv run comet login
+
+# To fine-tune the model
+fine-tune: ## Fine-tune the model
+	uv run python fine_tuning.py \
+		--base_llm_name unsloth/Llama-3.2-1B-bnb-4bit \
+		--dataset_path ./data/instruction_dataset_ollama_10k.jsonl 
+# --comet_ml_project_name news-signal-extractor \
+		--max_steps 100
+
 
 # ===== HELPERS =====
 ruff: ## Run Ruff linter

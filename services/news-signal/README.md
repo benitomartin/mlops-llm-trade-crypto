@@ -13,3 +13,18 @@ Use connection SSH over exposed from RunPod to the terminal
 In VSCode: Remote-SSH: Add New SSH Host and add the same connection, also in .ssh/config
 
 Then select the host and connect
+
+Push repo to github and clone it in the remote
+
+    # Install group
+    uv sync --group gpu-instance
+
+    # Install dev and all groups
+    uv sync --all-groups --all-extras
+
+    # Install dev
+    uv sync --all-extras  
+
+## Unsloth
+
+https://unsloth.ai/blog/llama3-1

@@ -26,6 +26,14 @@ dev = [
     "ruff>=0.8.3",
 ]
 
+[dependency-groups]
+gpu-instance = [
+    "comet-ml>=3.47.5",
+    "datasets>=3.2.0",
+    "setuptools>=75.6.0",
+    "unsloth>=2024.12.4",
+]
+
 # Build system configuration
 [build-system]
 requires = ["hatchling>=1.23.0"]
@@ -34,3 +42,4 @@ build-backend = "hatchling.build"
 # # Hatch configuration
 [tool.hatch.build]
 packages = ["llms"]
+

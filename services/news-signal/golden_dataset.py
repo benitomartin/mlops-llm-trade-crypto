@@ -59,6 +59,10 @@ def generate_dataset(
     for news_item in tqdm(news):
         try:
             signals = llm.get_signal(news_item)
+            if signals.news_signals == []:
+                # print(f"Skipping news_item: {news_item} due to empty signals")
+                continue
+            print(f"Received signal: {signals}")
             output = {
                 'instruction': instruction,
                 'input': news_item,
