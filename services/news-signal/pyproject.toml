@@ -16,6 +16,8 @@ dependencies = [
     "ollama>=0.4.4",
     "pre-commit>=4.0.1",
     "quixstreams>=3.4.0",
+    "fire>=0.7.0",
+    "pandas>=2.2.3",
 ]
 
 [project.optional-dependencies]

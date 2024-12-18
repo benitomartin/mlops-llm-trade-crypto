@@ -63,12 +63,12 @@ class ClaudeNewsSignalExtractor(BaseNewsSignalExtractor):
             # Create NewsSignal with the full parsed response
             news_signal = NewsSignal(news_signals=parsed_response)
 
-            # If no valid signals, return None
-            if not news_signal.news_signals:
-                return None
+            # # If no valid signals, return None
+            # if not news_signal.news_signals:
+            #     pass
 
             if output_format == 'dict':
-                return news_signal.model_dump()
+                return news_signal.model_dump()['news_signals']
             else:
                 return news_signal
 
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     )
 
     examples = [
-        'Bitcoin ETF ads spotted on China’s Alipay payment app',
+        'Bitcoin BTC ads spotted on China’s Alipay payment app',
         'U.S. Supreme Court Lets Nvidia’s Crypto Lawsuit Move Forward',
         'Trump’s World Liberty Acquires ETH, LINK, and AAVE in $12M Crypto Shopping Spree',
     ]
