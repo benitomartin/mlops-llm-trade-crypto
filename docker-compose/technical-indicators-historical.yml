@@ -22,7 +22,7 @@ services:
       - DATA_SOURCE=historical
     # restart: always # This will restart the container if it crashes. Similar to a Kubernetes pod.
     # restart: on-failure
-  
+
   candles:
     build:
       context: ../services/candles
@@ -76,5 +76,5 @@ services:
       - FEATURE_GROUP_VERSION=2
       - FEATURE_GROUP_PRIMARY_KEYS=["pair", "candle_seconds"]
       - FEATURE_GROUP_EVENT_TIME=timestamp_ms
-      - DATA_SOURCE=historical    
+      - DATA_SOURCE=historical
     restart: on-failure

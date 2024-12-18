@@ -1,5 +1,5 @@
-from typing import List, Tuple
 from datetime import datetime
+from typing import List, Tuple
 
 import requests
 from loguru import logger
@@ -28,6 +28,7 @@ class News(BaseModel):
                 * 1000
             ),
         }
+
 
 class NewsDownloader:
     """

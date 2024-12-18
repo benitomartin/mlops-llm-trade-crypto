@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 
 import hopsworks
 import pandas as pd
-from quixstreams.sinks.base import BatchingSink, SinkBackpressureError, SinkBatch
 from loguru import logger
+from quixstreams.sinks.base import BatchingSink, SinkBackpressureError, SinkBatch
 
 
 class HopsworksFeatureStoreSink(BatchingSink):
@@ -20,7 +20,7 @@ class HopsworksFeatureStoreSink(BatchingSink):
         feature_group_primary_keys: list[str],
         feature_group_event_time: str,
         feature_group_materialization_interval_minutes: int,
-   ):
+    ):
         """
         Establish a connection to the Hopsworks Feature Store
         """

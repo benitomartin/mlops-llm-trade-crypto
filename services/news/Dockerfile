@@ -28,7 +28,7 @@ WORKDIR /app
 # Copy the application from the builder
 COPY --from=builder --chown=app:app /app /app
 
-# Create the state folder 
+# Create the state folder
 RUN mkdir -p /app/state
 
 # Document that /app/state should be a volume

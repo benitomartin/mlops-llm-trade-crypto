@@ -9,11 +9,13 @@ class AnthropicConfig(BaseSettings):
     llm_name: str
     api_key: str
 
+
 # config = AnthropicConfig()
+
 
 class OllamaConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_file='ollama.env',
         env_file_encoding='utf-8',
-        )
+    )
     llm_name: str

@@ -1,9 +1,9 @@
-from typing import Literal, Optional
 import json
+from typing import Literal, Optional
 
-from llms.base import BaseNewsSignalExtractor, NewsSignal
 from llama_index.core.prompts import PromptTemplate
 from llama_index.llms.anthropic import Anthropic
+from llms.base import BaseNewsSignalExtractor, NewsSignal  #,  NewsSignalOneCoin
 
 
 class ClaudeNewsSignalExtractor(BaseNewsSignalExtractor):
@@ -21,20 +21,21 @@ class ClaudeNewsSignalExtractor(BaseNewsSignalExtractor):
 
         self.prompt_template = PromptTemplate(
             template="""
-            You are a financial analyst.
-            You are given a news article and you need to determine the impact of the news on the BTC and ETH price.
+            You are an expert crypto financial analyst with deep knowledge of market dynamics and sentiment analysis.
+            Analyze the following news story and determine its potential impact on crypto asset prices.
+            Focus on both direct mentions and indirect implications for each asset.
 
-            Respond STRICTLY with a JSON in this EXACT format:
-            {
-                "btc_signal": 1,
-                "eth_signal": 0,
-                "reasoning": "Explanation of the signals"
-            }
+            Do not output data for a given coin if the news is not relevant to it.
 
-            Rules for signals:
-            - 1 means price is expected to go up
-            - 0 means price is expected to stay the same
-            - -1 means price is expected to go down
+            ## Example input
+            "Goldman Sachs wants to invest in Bitcoin and Ethereum, but not in XRP"
+
+            ## Example output
+            [
+                {"coin": "BTC", "signal": 1},
+                {"coin": "ETH", "signal": 1},
+                {"coin": "XRP", "signal": -1},
+            ]
 
             News article: {news_article}
 
@@ -44,45 +45,12 @@ class ClaudeNewsSignalExtractor(BaseNewsSignalExtractor):
 
         self.llm_name = llm_name
 
-    # def extract_json(self, text: str) -> dict:
-    #     """
-    #     Extract JSON from the response text using multiple methods
-    #     """
-    #     # Method 1: Find JSON between first { and last }
-    #     try:
-    #         first_brace = text.index('{')
-    #         last_brace = text.rindex('}')
-    #         json_str = text[first_brace:last_brace+1]
-    #         return json.loads(json_str)
-    #     except (ValueError, json.JSONDecodeError):
-    #         pass
-
-    #     raise ValueError(f"Could not extract valid JSON from text: {text}")
-
-
-    def extract_json(self, response_text: str) -> NewsSignal:
-        try:
-            # Parse and validate using Pydantic
-            data = json.loads(response_text)
-            return data
-        except (ValueError, json.JSONDecodeError) as e:
-            raise ValueError(f"Could not extract valid JSON from text: {e}") from e
-
+    # Update the method in the extractor class
     def get_signal(
         self,
         text: str,
-        output_format: Literal['dict', 'NewsSignal'] = 'dict',
-    ) -> NewsSignal | dict:
-        """
-        Get the news signal from the given `text`
-
-        Args:
-            text: The news article to get the signal from
-            output_format: The format of the output
-
-        Returns:
-            The news signal
-        """
+        output_format: Literal['dict', 'NewsSignal'] = 'NewsSignal',
+    ) -> NewsSignal | dict | None:
         try:
             # Use chat completion and parse the JSON manually
             response = self.llm.complete(
@@ -90,27 +58,26 @@ class ClaudeNewsSignalExtractor(BaseNewsSignalExtractor):
             )
 
             # Parse the JSON response
-            parsed_response = self.extract_json(response.text)
+            parsed_response = json.loads(response.text)
 
-            # Convert to NewsSignal
-            news_signal = NewsSignal(
-                btc_signal=parsed_response['btc_signal'],
-                eth_signal=parsed_response['eth_signal'],
-                reasoning=parsed_response['reasoning']
-            )
+            # Create NewsSignal with the full parsed response
+            news_signal = NewsSignal(news_signals=parsed_response)
+
+            # If no valid signals, return None
+            if not news_signal.news_signals:
+                return None
+
+            if output_format == 'dict':
+                return news_signal.model_dump()
+            else:
+                return news_signal
 
         except Exception as e:
-            print(f"Error occurred during request: {e}")
+            print(f'Error occurred during request: {e}')
             raise
-
-        if output_format == 'dict':
-            return news_signal.to_dict()
-        else:
-            return news_signal
 
 
 if __name__ == '__main__':
-
     from config import AnthropicConfig
 
     config = AnthropicConfig()
@@ -131,32 +98,86 @@ if __name__ == '__main__':
         response = llm.get_signal(example)
         print(response)
 
-    """
-    Example: Bitcoin ETF ads spotted on China’s Alipay payment app
-    {
-        "btc_signal": 1,
-        "eth_signal": 0,
-        "reasoning": "The news of Bitcoin ETF ads being spotted on China's Alipay payment
-        app suggests a growing interest in Bitcoin and other cryptocurrencies among Chinese
-        investors. This could lead to increased demand for BTC, causing its price to rise."
-    }
 
-    Example: U.S. Supreme Court Lets Nvidia’s Crypto Lawsuit Move Forward
-    {
-        "btc_signal": -1,
-        "eth_signal": -1,
-        "reasoning": "The US Supreme Court's decision allows Nvidia to pursue its crypto
-        lawsuit, which could lead to increased regulatory uncertainty and potential
-        restrictions on cryptocurrency mining. This could negatively impact the prices
-        of both BTC and ETH."
-    }
 
-    Example: Trump’s World Liberty Acquires ETH, LINK, and AAVE in $12M Crypto Shopping Spree
-    {
-        "btc_signal": 0,
-        "eth_signal": 1,
-        "reasoning": "The acquisition of ETH by a major company like
-        Trump's World Liberty suggests that there is increased demand for
-        Ethereum, which could lead to an increase in its price."
-    }
-    """
+
+
+
+    # """
+    # Example: Bitcoin ETF ads spotted on China’s Alipay payment app
+    # {
+    #     "btc_signal": 1,
+    #     "eth_signal": 0,
+    #     "reasoning": "The news of Bitcoin ETF ads being spotted on China's Alipay payment
+    #     app suggests a growing interest in Bitcoin and other cryptocurrencies among Chinese
+    #     investors. This could lead to increased demand for BTC, causing its price to rise."
+    # }
+
+    # Example: U.S. Supreme Court Lets Nvidia’s Crypto Lawsuit Move Forward
+    # {
+    #     "btc_signal": -1,
+    #     "eth_signal": -1,
+    #     "reasoning": "The US Supreme Court's decision allows Nvidia to pursue its crypto
+    #     lawsuit, which could lead to increased regulatory uncertainty and potential
+    #     restrictions on cryptocurrency mining. This could negatively impact the prices
+    #     of both BTC and ETH."
+    # }
+
+    # Example: Trump’s World Liberty Acquires ETH, LINK, and AAVE in $12M Crypto Shopping Spree
+    # {
+    #     "btc_signal": 0,
+    #     "eth_signal": 1,
+    #     "reasoning": "The acquisition of ETH by a major company like
+    #     Trump's World Liberty suggests that there is increased demand for
+    #     Ethereum, which could lead to an increase in its price."
+    # }
+    # """
+
+
+    # def get_signal(
+    #     self,
+    #     text: str,
+    #     output_format: Literal['dict', 'NewsSignal'] = 'NewsSignal',
+    # ) -> NewsSignal | dict:
+    #     """
+    #     Get the news signal from the given `text`
+
+    #     Args:
+    #         text: The news article to get the signal from
+    #         output_format: The format of the output
+
+    #     Returns:
+    #         The news signal
+    #     """
+    #     try:
+    #         # Use chat completion and parse the JSON manually
+    #         response = self.llm.complete(self.prompt_template.format(news_article=text))
+
+    #         # Parse the JSON response
+    #         parsed_response = self.extract_json(response.text)
+
+    #         # Get the allowed coins from the NewsSignalOneCoin model
+    #         allowed_coins = NewsSignalOneCoin.model_fields['coin'].annotation.__args__
+
+    #         # Convert to NewsSignal by creating a list of NewsSignalOneCoin
+    #         # Only include signals that are 1 or -1 and have supported coins
+    #         news_signals = [
+    #             NewsSignalOneCoin(coin=signal['coin'], signal=signal['signal'])
+    #             for signal in parsed_response
+    #             if signal['signal'] in [1, -1] and signal['coin'] in allowed_coins
+    #         ]
+    #         # breakpoint()
+    #         # Only create NewsSignal if there are relevant signals
+    #         if news_signals:
+    #             news_signal = NewsSignal(news_signals=news_signals)
+
+    #             if output_format == 'dict':
+    #                 return news_signal.model_dump()
+    #             else:
+    #                 return news_signal
+    #         else:
+    #             # If no relevant signals, return None or raise an exception
+    #             return None
+    #     except Exception as e:
+    #         print(f'Error occurred during request: {e}')
+    #         raise
