@@ -32,6 +32,8 @@ def get_llm(llm_name: Literal['anthropic', 'ollama']) -> BaseNewsSignalExtractor
 
         return OllamaNewsSignalExtractor(
             llm_name=config.llm_name,
+            base_url=config.ollama_base_url,
+
         )
 
     else:

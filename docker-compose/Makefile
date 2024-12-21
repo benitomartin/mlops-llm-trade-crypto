@@ -29,27 +29,24 @@ stop-technical-indicators-live: ## Stop the live technical indicators pipeline
 build-technical-indicators-historical: ## Build the historical technical indicators pipeline
 	docker compose -f technical-indicators-historical.yml build
 
-start-technical-indicators-historical: build-technical-indicators-live ## Start the historical technical indicators pipeline
+start-technical-indicators-historical: build-technical-indicators-historical ## Start the historical technical indicators pipeline
 	docker compose -f technical-indicators-historical.yml up -d
 
 stop-technical-indicators-historical: ## Stop the historical technical indicators pipeline
 	docker compose -f technical-indicators-historical.yml down
 
 
-# ===== BACKFILL =====
+# ===== BACKFILL TECHNICAL INDICATORS =====
 # Generates a unique RUN_ID for each backfill using the uuidgen command
+
 backfill-technical-indicators: build-technical-indicators-historical ## Start the backfill historical technical indicators pipeline
 	$(eval RUN_ID := $(shell uuidgen))
 	@echo "Starting backfill with RUN_ID: $(RUN_ID)"
 	RUN_ID=$(RUN_ID) docker compose -f technical-indicators-historical.yml up -d
 
-clean-backfill-kakfa-topics: ## Remove all Kafka topics that contain the word historical
-	@echo "Removing all Kafka topics that contain the word historical"
-	docker compose -f redpanda.yml exec redpanda rpk topic delete -r ".*historical.*"
 
-
-# ===== NEWS SIGNAL =====
-# News signal pipeline management
+# ===== NEWS SIGNAL LIVE =====
+# LIVE News signal pipeline management
 build-news-signal-live: ## Build the live news signal pipeline
 	docker compose -f news-signal-live.yml build
 
@@ -59,6 +56,25 @@ start-news-signal-live: build-news-signal-live ## Start the live news signal pip
 stop-news-signal-live: ## Stop the live news signal pipeline
 	docker compose -f news-signal-live.yml down
 
+
+# ===== NEWS SIGNAL HISTORICAL =====
+# HISTORICAL News signal pipeline management
+build-news-signal-historical: ## Build the historical news signal pipeline
+	docker compose -f news-signal-historical.yml build
+
+backfill-news-signals: build-news-signal-historical ## Start the backfill news signal pipeline
+	$(eval RUN_ID := $(shell uuidgen))
+	@echo "Starting backfill of news signals with RUN_ID: $(RUN_ID)"
+	RUN_ID=$(RUN_ID) docker compose -f news-signal-historical.yml up -d
+
+stop-news-signal-historical: ## Stop the historical news signal pipeline
+	docker compose -f news-signal-historical.yml down
+
+# ===== CLEANING BACKFILL =====
+# Remove unused Kafka topic after backfill operations
+clean-backfill-kakfa-topics:
+	@echo "Removing all Kafka topics that contain the word historical"
+	docker compose -f redpanda.yml exec redpanda rpk topic delete -r ".*historical.*"
 
 # ===== HELP =====
 help: ## Display this help message

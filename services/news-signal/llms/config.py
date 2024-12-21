@@ -19,3 +19,4 @@ class OllamaConfig(BaseSettings):
         env_file_encoding='utf-8',
     )
     llm_name: str
+    ollama_base_url: str

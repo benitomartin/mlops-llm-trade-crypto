@@ -11,12 +11,14 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
     def __init__(
         self,
         llm_name: str,
+        base_url: str,
         temperature: Optional[float] = 0,
     ):
         self.llm = Ollama(
             model=llm_name,
-            # base_url= "http://localhost:11434",
             temperature=temperature,
+            base_url=base_url,
+
         )
 
         self.prompt_template = PromptTemplate(
@@ -56,13 +58,18 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
             response = self.llm.complete(self.prompt_template.format(news_article=text))
 
             # Parse the JSON response
-            parsed_response = json.loads(response.text)
+            # Clean the response text to handle trailing commas
+            raw_response = response.text
+            clean_response = raw_response.replace(",\n]", "\n]")  # Remove trailing comma in JSON lists
+            # print(f"Cleaned response: {clean_response}")
+
+            parsed_response = json.loads(clean_response)
             # breakpoint()
 
             # If parsed response is not a list, skip it
             if not isinstance(parsed_response, list):
                 logger.debug(f"Unexpected response format, skipping: {parsed_response}")
-                return None
+                return []
         
             # Create NewsSignal with the full parsed response
             news_signal = NewsSignal(news_signals=parsed_response)
@@ -88,6 +95,7 @@ if __name__ == '__main__':
 
     llm = OllamaNewsSignalExtractor(
         llm_name=config.llm_name,
+        base_url=config.ollama_base_url,
     )
 
     examples = [
