@@ -3,7 +3,7 @@ from typing import Optional
 
 from quixstreams.sources.base import StatefulSource
 
-from news_downloader import NewsDownloader
+from .news_downloader import NewsDownloader
 
 
 # https://quix.io/docs/quix-streams/connectors/sources/custom-sources.html#custom-sources-and-jupyter-notebook
@@ -54,8 +54,6 @@ class NewsDataSource(StatefulSource):
             self.state.set('last_published_at', last_published_at)
 
             # flush the state
-            # When the StatefulSource.flush is called, it commits the current store transaction
-            # to guarantee that the state changes are saved.
             self.flush()
 
             # wait for the next polling

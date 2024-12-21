@@ -14,7 +14,7 @@ ruff: ## Run Ruff linter
 
 clean: ## Clean up cached generated files
 	@echo "Cleaning up generated files..."
-	find . -type d \( -name "__pycache__" -o -name ".ruff_cache" -o -name ".pytest_cache" \) -exec rm -rf {} +
+	find . -type d \( -name "__pycache__" -o -name ".ruff_cache" -o -name ".pytest_cache" -o -name ".mypy_cache" \) -exec rm -rf {} +
 	@echo "Cleanup complete."
 
 clean-state: ## Clean state generated files

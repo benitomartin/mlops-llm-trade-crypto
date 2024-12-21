@@ -48,8 +48,8 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
     def get_signal(
         self,
         text: str,
-        output_format: Literal['dict', 'NewsSignal'] = 'NewsSignal',
-    ) -> NewsSignal | dict | None:
+        output_format: Literal['dict', 'NewsSignal'] = 'list[dict]',
+    ) -> NewsSignal | list[dict] | None:
         try:
             # Use chat completion and parse the JSON manually
             response = self.llm.complete(self.prompt_template.format(news_article=text))
@@ -64,7 +64,7 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
             # if not news_signal.news_signals:
             #     pass
 
-            if output_format == 'dict':
+            if output_format == 'list':
                 return news_signal.model_dump()['news_signals']
             else:
                 return news_signal

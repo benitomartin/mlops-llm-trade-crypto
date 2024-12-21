@@ -6,8 +6,15 @@ req: ## Install requirements
 	uv pip install -r pyproject.toml --all-extras
 	uv lock
 
-run-dev: ## Run News Service App
+
+run-dev-live: ## Run Live News Service App
+	cp live.settings.env settings.env
 	uv run python run.py
+
+run-dev-historical: ## Run Historical News Service App
+	cp historical.settings.env settings.env
+	uv run python run.py
+
 
 # This image is optimized for production use
 build: ## Build the Docker image (optimized)
@@ -27,6 +34,7 @@ ruff: ## Run Ruff linter
 clean: ## Clean up generated files
 	rm -rf __pycache__
 	rm -rf .ruff_cache
+	rm -rf .mypy_cache
 
 help: ## Display this help message
 	@echo "Available targets:"

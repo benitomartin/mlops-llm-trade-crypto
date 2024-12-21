@@ -1,5 +1,6 @@
 import os
 from typing import Literal, Optional, Tuple
+
 import comet_ml
 import torch
 from datasets import Dataset, load_dataset
@@ -111,8 +112,8 @@ def load_and_split_dataset(
     def format_prompts(examples):
         # chat template we use to format the data we feed to the model
         alpaca_prompt = """
-            Below is an instruction that describes a task, 
-            paired with an input that provides further context. 
+            Below is an instruction that describes a task, \
+            paired with an input that provides further context. \
             Write a response that appropriately completes the request.
 
             ### Instruction:
@@ -240,10 +241,10 @@ def export_model_to_ollama_format(
         logger.info(f'Starting model export with quantization: {quantization_method}')
         logger.info(f'Available GPU memory before export: {torch.cuda.memory_allocated() if torch.cuda.is_available() else "N/A"}')
         logger.info('Saving model locally to disk')
-    
+
         model.save_pretrained_gguf(
-            'model', 
-            tokenizer, 
+            'model',
+            tokenizer,
             quantization_method=quantization_method
         )
         logger.info('Model saved to disk!')
