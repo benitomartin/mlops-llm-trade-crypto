@@ -48,6 +48,9 @@ class HistoricalNewsDataSource(Source):
             # load the CSV file into a pandas dataframe
             df = pd.read_csv(self.path_to_csv_file)
 
+            # Convert 'newsDatetime' to datetime and drop invalid rows
+            df['newsDatetime'] = pd.to_datetime(df['newsDatetime'], errors='coerce')
+
             # drop nan values
             df = df.dropna()
 

@@ -8,8 +8,14 @@ req: ## Install requirements
 
 
 # ===== DEVELOPMENT =====
-run-dev: ## Run News Signal Service App
+run-dev-live: ## Run Live News Signal Service App
+	cp live.settings.env settings.env
 	uv run python run.py
+
+run-dev-historical: ## Run Historical News Signal Service Ap
+	cp historical.settings.env settings.env
+	uv run python run.py
+
 
 run-claude: ## Run Claude
 	uv run python llms/claude.py

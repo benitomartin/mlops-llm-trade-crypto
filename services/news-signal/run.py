@@ -1,7 +1,7 @@
-from llms.base import BaseNewsSignalExtractor
+from typing import List, Literal, Optional
+
 from loguru import logger
 from quixstreams import Application
-from typing import List, Optional
 
 
 def add_signal_to_news(value: dict) -> dict:
@@ -11,14 +11,18 @@ def add_signal_to_news(value: dict) -> dict:
     logger.debug(f'Extracting news signal from {value["title"]}')
     news_signal: List[dict] = llm.get_signal(value['title'], output_format='list')
 
+    # breakpoint()
+    # A news_signal might have multiple coins, e.g.
+    # [{'coin': 'XRP', 'signal': -1}, {'coin': 'LTC', 'signal': 1}, {'coin': 'EOS', 'signal': 1}]
+
     # If the news_signal list is empty, ignore and return an empty list
     if not news_signal:
         logger.debug('News signal is empty, skipping processing.')
         return []
-    
+
     model_name = llm.llm_name
     timestamp_ms = value['timestamp_ms']
-    
+
     # breakpoint()
 
     try:
@@ -29,8 +33,9 @@ def add_signal_to_news(value: dict) -> dict:
                 'model_name': model_name,
                 'timestamp_ms': timestamp_ms,
             }
-            for n in news_signal 
+            for n in news_signal
         ]
+        # breakpoint()
     except Exception as e:
         logger.error(f'Cannot extract news signal from {news_signal}')
         logger.error(f'Error extracting news signal: {e}')
@@ -44,7 +49,8 @@ def main(
     kafka_input_topic: str,
     kafka_output_topic: str,
     kafka_consumer_group: str,
-    llm: BaseNewsSignalExtractor,
+    # llm: BaseNewsSignalExtractor,
+    data_source: Literal['live', 'historical', 'test'],
     debug: Optional[bool] = False,
 
 ):
@@ -61,7 +67,7 @@ def main(
     app = Application(
         broker_address=kafka_broker_address,
         consumer_group=kafka_consumer_group,
-        auto_offset_reset='earliest',
+        auto_offset_reset='latest' if data_source == 'live' else 'earliest',
     )
 
     input_topic = app.topic(
@@ -76,8 +82,11 @@ def main(
 
     sdf = app.dataframe(input_topic)
 
+    # expand=True will expand the collection (e.g. list or tuple).
+    # Useful when the output of the function has a list
+    # with more than one currency.
     sdf = sdf.apply(add_signal_to_news, expand=True)
-    
+
     # # Process the incoming news into a news signal
     # sdf = sdf.apply(
     #     lambda value: {
@@ -107,5 +116,7 @@ if __name__ == '__main__':
         kafka_input_topic=config.kafka_input_topic,
         kafka_output_topic=config.kafka_output_topic,
         kafka_consumer_group=config.kafka_consumer_group,
-        llm=llm,
+        # llm=llm,
+        data_source=config.data_source,
+
     )

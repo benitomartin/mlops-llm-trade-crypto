@@ -1,6 +1,7 @@
 from loguru import logger
-from sources import NewsDataSource
 from quixstreams import Application
+
+from sources import NewsDataSource
 
 
 def main(

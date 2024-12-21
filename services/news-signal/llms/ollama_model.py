@@ -1,5 +1,6 @@
 import json
 from typing import Literal, Optional
+from loguru import logger
 
 from llama_index.core.prompts import PromptTemplate
 from llama_index.llms.ollama import Ollama
@@ -56,7 +57,13 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
 
             # Parse the JSON response
             parsed_response = json.loads(response.text)
+            # breakpoint()
 
+            # If parsed response is not a list, skip it
+            if not isinstance(parsed_response, list):
+                logger.debug(f"Unexpected response format, skipping: {parsed_response}")
+                return None
+        
             # Create NewsSignal with the full parsed response
             news_signal = NewsSignal(news_signals=parsed_response)
 
