@@ -6,22 +6,35 @@ from pydantic import BaseModel, Field, field_validator
 
 class NewsSignal(BaseModel):
     news_signals: list[dict] = Field(
-        description="List of news signals for different coins"
+        description='List of news signals for different coins'
     )
 
     @field_validator('news_signals')
     def filter_and_validate_signals(cls, signals):
         # Allowed coins
         allowed_coins = [
-            'BTC', 'ETH', 'SOL', 'XRP', 'DOGE', 'ADA', 'XLM', 'LTC',
-            'BCH', 'DOT', 'XMR', 'EOS', 'XEM', 'ZEC', 'ETC'
+            'BTC',
+            'ETH',
+            'SOL',
+            'XRP',
+            'DOGE',
+            'ADA',
+            'XLM',
+            'LTC',
+            'BCH',
+            'DOT',
+            'XMR',
+            'EOS',
+            'XEM',
+            'ZEC',
+            'ETC',
         ]
 
         # Filter signals
         filtered_signals = [
-            signal for signal in signals
-            if signal.get('signal') in [1, -1]
-            and signal.get('coin') in allowed_coins
+            signal
+            for signal in signals
+            if signal.get('signal') in [1, -1] and signal.get('coin') in allowed_coins
         ]
 
         if not filtered_signals:
@@ -33,17 +46,13 @@ class NewsSignal(BaseModel):
 class BaseNewsSignalExtractor(ABC):
     @abstractmethod
     def get_signal(
-        self, 
-        text: str, 
-        output_format: Literal['dict', 'NewsSignal'] = 'dict'
+        self, text: str, output_format: Literal['dict', 'NewsSignal'] = 'dict'
     ) -> dict | NewsSignal:
         pass
 
     # @property
     # def model_name(self) -> str:
     #     return self.model_name
-
-
 
 
 # class NewsSignalOneCoin(BaseModel):

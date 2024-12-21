@@ -1169,6 +1169,8 @@ gpu-instance = [
     { name = "comet-ml" },
     { name = "datasets" },
     { name = "setuptools" },
+    { name = "torch" },
+    { name = "transformers" },
     { name = "unsloth" },
 ]
 
@@ -1194,6 +1196,8 @@ gpu-instance = [
     { name = "comet-ml", specifier = ">=3.47.5" },
     { name = "datasets", specifier = ">=3.2.0" },
     { name = "setuptools", specifier = ">=75.6.0" },
+    { name = "torch", specifier = ">=2.5.1" },
+    { name = "transformers", specifier = ">=4.47.1" },
     { name = "unsloth", specifier = ">=2024.12.4" },
 ]
 
@@ -2603,7 +2607,7 @@ wheels = [
 
 [[package]]
 name = "tyro"
-version = "0.9.3"
+version = "0.9.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama", marker = "platform_system == 'Windows'" },
@@ -2613,9 +2617,9 @@ dependencies = [
     { name = "typeguard" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/66/9a/635f6c6e10638d432f4f0bf7bbdca4cf413a643ed3d12437b5b3fe29bac8/tyro-0.9.3.tar.gz", hash = "sha256:41d0e97b8d6afe10f19a7edc3bcc4c7567b026aae69ac8f89510575ace024fb9", size = 234260 }
+sdist = { url = "https://files.pythonhosted.org/packages/2e/a1/889e6bfdc18d648f603792fd61ad569e1df0ce5d52f9c7b30ed6103d7d73/tyro-0.9.4.tar.gz", hash = "sha256:1f6c8fe19040e2f8bde32013c5255693a2f311d3599bb051474bc92561de25e2", size = 234997 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/30/de/7a46f0784b07d7b203e4d530d3c031ae0a6c44c0d7068e2e77d73e01b041/tyro-0.9.3-py3-none-any.whl", hash = "sha256:8715fe6698307d3ed457558f28cdebe2332f777e509ac5dcfd476673bf88ef58", size = 112214 },
+    { url = "https://files.pythonhosted.org/packages/58/aa/6a088b7abfef042b3ef4213f949a5b54013cab30317e85db0516f00d5c29/tyro-0.9.4-py3-none-any.whl", hash = "sha256:00546f1863f842b2b400b3fa3ca4606dc4de53f989ed570357da393580b0a6c5", size = 112438 },
 ]
 
 [[package]]

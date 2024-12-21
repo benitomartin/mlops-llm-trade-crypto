@@ -1,6 +1,6 @@
 # Makefile
 
-.PHONY: req run-dev build run clean ruff help
+.PHONY: req run-dev build run clean_cache ruff help
 
 req: ## Install requirements
 	uv pip install -r pyproject.toml --all-extras
@@ -70,20 +70,20 @@ venv-gpu-instance:
 login-comet:
 	uv run comet login
 
-# To fine-tune the model
+# To fine-tune the model unsloth/Llama-3.2-1B-bnb-4bit, unsloth/Qwen2.5-0.5B-bnb-4bit, unsloth/gemma-2-2b-bnb-4bit
 fine-tune: ## Fine-tune the model
 	uv run python fine_tuning.py \
-		--base_llm_name unsloth/Llama-3.2-1B-bnb-4bit \
-		--dataset_path ./data/instruction_dataset_ollama_10k.jsonl 
-# --comet_ml_project_name news-signal-extractor \
-		--max_steps 100
+		--base_llm_name unsloth/Qwen2.5-0.5B-bnb-4bit \
+		--dataset_path ./data/instruction_dataset_ollama_10k.jsonl \
+		--comet_ml_project_name news-signal-extractor \
+		--max_steps 100 --debug
 
 
 # ===== HELPERS =====
 ruff: ## Run Ruff linter
-	ruff check . --fix --exit-non-zero-on-fix --show-fixes
+	ruff check . --fix --exit-non-zero-on-fix --show-fixes --exclude llama.cpp
 
-clean: ## Clean up generated files
+clean_cache: ## Clean up generated files
 	rm -rf __pycache__
 	rm -rf .ruff_cache
 

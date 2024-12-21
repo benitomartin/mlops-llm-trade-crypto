@@ -168,3 +168,6 @@ cython_debug/
 **/*.csv
 **/cryptopanic_credentials.env
 **/anthropic_credentials.env
+**/llama.cpp/
+**/model/
+**/outputs/

@@ -3,7 +3,6 @@ from typing import Literal, Optional
 
 from llama_index.core.prompts import PromptTemplate
 from llama_index.llms.ollama import Ollama
-
 from llms.base import BaseNewsSignalExtractor, NewsSignal
 
 
@@ -53,9 +52,7 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
     ) -> NewsSignal | dict | None:
         try:
             # Use chat completion and parse the JSON manually
-            response = self.llm.complete(
-                self.prompt_template.format(news_article=text)
-            )
+            response = self.llm.complete(self.prompt_template.format(news_article=text))
 
             # Parse the JSON response
             parsed_response = json.loads(response.text)

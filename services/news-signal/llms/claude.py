@@ -3,7 +3,7 @@ from typing import Literal, Optional
 
 from llama_index.core.prompts import PromptTemplate
 from llama_index.llms.anthropic import Anthropic
-from llms.base import BaseNewsSignalExtractor, NewsSignal  #,  NewsSignalOneCoin
+from llms.base import BaseNewsSignalExtractor, NewsSignal  # ,  NewsSignalOneCoin
 
 
 class ClaudeNewsSignalExtractor(BaseNewsSignalExtractor):
@@ -53,9 +53,7 @@ class ClaudeNewsSignalExtractor(BaseNewsSignalExtractor):
     ) -> NewsSignal | dict | None:
         try:
             # Use chat completion and parse the JSON manually
-            response = self.llm.complete(
-                self.prompt_template.format(news_article=text)
-            )
+            response = self.llm.complete(self.prompt_template.format(news_article=text))
 
             # Parse the JSON response
             parsed_response = json.loads(response.text)
@@ -98,11 +96,6 @@ if __name__ == '__main__':
         response = llm.get_signal(example)
         print(response)
 
-
-
-
-
-
     # """
     # Example: Bitcoin ETF ads spotted on China’s Alipay payment app
     # {
@@ -132,7 +125,6 @@ if __name__ == '__main__':
     #     Ethereum, which could lead to an increase in its price."
     # }
     # """
-
 
     # def get_signal(
     #     self,
