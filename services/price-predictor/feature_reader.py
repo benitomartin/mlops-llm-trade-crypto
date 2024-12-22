@@ -90,7 +90,7 @@ class FeatureReader:
             technical_indicators_feature_group_version,
         )
         print(f"A: {technical_indicators_fg}")
-        
+
         news_signals_fg = self._get_feature_group(
             news_signals_feature_group_name,
             news_signals_feature_group_version,
@@ -140,7 +140,7 @@ class FeatureReader:
         #     .select_all(
         #         ["pair", "timestamp_ms", "close", "candle_seconds"]
         #     )
-        
+
         # attempt to create the feature view
         feature_view = self._feature_store.create_feature_view(
             name=feature_view_name,
@@ -158,11 +158,11 @@ class FeatureReader:
         """
         Returns a feature view object given its name and version.
         """
-        raise NotImplementedError('Feature view creation is not supported yet')
-        # return self._feature_store.get_feature_view(
-        #     name=feature_view_name,
-        #     version=feature_view_version,
-        # )
+        # raise NotImplementedError('Feature view creation is not supported yet')
+        return self._feature_store.get_feature_view(
+            name=feature_view_name,
+            version=feature_view_version,
+        )
 
     def _get_feature_store(self, project_name: str, api_key: str) -> FeatureStore:
         """
@@ -180,8 +180,8 @@ class FeatureReader:
         """
         logger.info(f'Getting training data going back {days_back} days')
         return self._feature_view.get_batch_data(
-            # start_time=datetime.now() - timedelta(days=days_back),
-            # end_time=datetime.now(),
+            start_time=datetime.now() - timedelta(days=days_back),
+            end_time=datetime.now(),
         )
 
     #     # TODO: split these features into groups of `pairs` and then stack them
@@ -196,7 +196,7 @@ if __name__ == '__main__':
     from config import hopsworks_credentials
 
     print(hopsworks_credentials)
-    
+
     feature_reader = FeatureReader(
         hopsworks_project_name=hopsworks_credentials.hopsworks_project_name,
         hopsworks_api_key=hopsworks_credentials.hopsworks_api_key,
@@ -214,8 +214,8 @@ if __name__ == '__main__':
         news_signals_feature_group_name='news_signals',
         news_signals_feature_group_version=1,
     )
-    
-    
-    training_data = feature_reader.get_training_data(days_back=10)
+
+
+    training_data = feature_reader.get_training_data(days_back=1000)
     print(training_data)
-    breakpoint()
+    # breakpoint()

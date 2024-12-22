@@ -1,5 +1,6 @@
-from feature_reader import FeatureReader
 from loguru import logger
+
+from feature_reader import FeatureReader
 
 
 def train(
@@ -58,8 +59,8 @@ if __name__ == '__main__':
     from config import hopsworks_credentials, training_config
 
     train(
-        hopsworks_project_name=hopsworks_credentials.project_name,
-        hopsworks_api_key=hopsworks_credentials.api_key,
+        hopsworks_project_name=hopsworks_credentials.hopsworks_project_name,
+        hopsworks_api_key=hopsworks_credentials.hopsworks_api_key,
         feature_view_name=training_config.feature_view_name,
         feature_view_version=training_config.feature_view_version,
         pair_to_predict=training_config.pair_to_predict,

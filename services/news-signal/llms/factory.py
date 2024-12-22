@@ -35,11 +35,11 @@ def get_llm(llm_name: Literal['anthropic', 'ollama', 'dummy']) -> BaseNewsSignal
             base_url=config.ollama_base_url,
 
         )
-        
+
     elif llm_name == 'dummy':
         from .dummy import DummyNewsSignalExtractor
 
         return DummyNewsSignalExtractor()
-    
+
     else:
         raise ValueError(f'Unsupported model provider: {llm_name}')
