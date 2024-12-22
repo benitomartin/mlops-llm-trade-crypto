@@ -5,7 +5,7 @@ from .claude import ClaudeNewsSignalExtractor
 from .ollama_model import OllamaNewsSignalExtractor
 
 
-def get_llm(llm_name: Literal['anthropic', 'ollama']) -> BaseNewsSignalExtractor:
+def get_llm(llm_name: Literal['anthropic', 'ollama', 'dummy']) -> BaseNewsSignalExtractor:
     """
     Returns the LLM we want for the news signal extractor
 
@@ -35,6 +35,11 @@ def get_llm(llm_name: Literal['anthropic', 'ollama']) -> BaseNewsSignalExtractor
             base_url=config.ollama_base_url,
 
         )
+        
+    elif llm_name == 'dummy':
+        from .dummy import DummyNewsSignalExtractor
 
+        return DummyNewsSignalExtractor()
+    
     else:
         raise ValueError(f'Unsupported model provider: {llm_name}')

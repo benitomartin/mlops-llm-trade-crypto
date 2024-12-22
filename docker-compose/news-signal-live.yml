@@ -27,7 +27,7 @@ services:
       - ../services/news-signal/anthropic_credentials.env
     environment:
       - KAFKA_BROKER_ADDRESS=redpanda:9092
-      - MODEL=anthropic
+      - MODEL=dummy
     # restart: always
 
   to-feature-store:

@@ -129,6 +129,7 @@ To create a new environment for this service and create a lockfile, run the foll
 
     uv init --no-workspace trades
     cd trades
+    uv sync
     source .venv/bin/activate
 
     # Install dependencies:

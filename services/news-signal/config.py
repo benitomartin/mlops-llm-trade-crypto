@@ -11,7 +11,7 @@ class Config(BaseSettings):
     kafka_output_topic: str
     kafka_consumer_group: str
 
-    model: Literal['anthropic', 'ollama']
+    model: Literal['anthropic', 'ollama', 'dummy']
     data_source: Literal['live', 'historical']
 
 

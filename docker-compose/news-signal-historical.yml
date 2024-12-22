@@ -35,9 +35,9 @@ services:
       - KAFKA_INPUT_TOPIC=news_historical_${RUN_ID}
       - KAFKA_OUTPUT_TOPIC=news_signal_historical_${RUN_ID}
       - KAFKA_CONSUMER_GROUP=news_signal_historical_${RUN_ID}
-      - MODEL_PROVIDER=ollama # TODO: change to our fine tuned model (once we manage to export it!)
+      - MODEL_PROVIDER=ollama # [ollama, anthropic, dummy]TODO: change to our fine tuned model (once we manage to export it!)
       - DATA_SOURCE=historical
-      - OLLAMA_BASE_URL=http://host.docker.internal:11434 # TODO: change to docker.host.internal:11434
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
     restart: always
 
   to-feature-store:

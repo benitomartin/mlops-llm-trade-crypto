@@ -72,7 +72,7 @@ stop-news-signal-historical: ## Stop the historical news signal pipeline
 
 # ===== CLEANING BACKFILL =====
 # Remove unused Kafka topic after backfill operations
-clean-backfill-kakfa-topics:
+clean-backfill-kakfa-topics: ## Remove unused Kafka topic after backfill operations
 	@echo "Removing all Kafka topics that contain the word historical"
 	docker compose -f redpanda.yml exec redpanda rpk topic delete -r ".*historical.*"
 
