@@ -18,9 +18,11 @@ services:
       - KAFKA_TOPIC=trades_historical_${RUN_ID}
       - PAIRS=["BTC/USD", "BTC/EUR", "ETH/EUR", "ETH/USD"]
       - DATA_SOURCE=historical
-      - LAST_N_DAYS=150
+      - LAST_N_DAYS=30
       - DATA_SOURCE=historical
     # restart: always # This will restart the container if it crashes. Similar to a Kubernetes pod.
+    volumes:
+      - trades_named_volume:/app/state
     restart: on-failure
 
   candles:
@@ -39,6 +41,8 @@ services:
       - CANDLE_SECONDS=60
       - EMIT_INCOMPLETE_CANDLES=False
       - DATA_SOURCE=historical
+    volumes:
+      - candles_named_volume:/app/state
     restart: always
 
   technical-indicators:
@@ -57,6 +61,8 @@ services:
       - MAX_CANDLES_IN_STATE=120
       - CANDLE_SECONDS=60
       - DATA_SOURCE=historical
+    volumes:
+      - ti_named_volume:/app/state
     restart: always
 
   to-feature-store:
@@ -77,4 +83,17 @@ services:
       - FEATURE_GROUP_PRIMARY_KEYS=["pair", "candle_seconds"]
       - FEATURE_GROUP_EVENT_TIME=timestamp_ms
       - DATA_SOURCE=historical
+    volumes:
+      - fs_named_volume:/app/state
     restart: always
+
+
+volumes:
+  trades_named_volume:
+    # external: true
+  candles_named_volume:
+    # external: true
+  ti_named_volume:
+    # external: true
+  fs_named_volume:
+    # external: true

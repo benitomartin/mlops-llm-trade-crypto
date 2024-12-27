@@ -51,32 +51,56 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
     def get_signal(
         self,
         text: str,
-        output_format: Literal['dict', 'NewsSignal'] = 'list[dict]',
+        output_format: Literal['list', 'NewsSignal'] = 'list',
     ) -> NewsSignal | list[dict] | None:
         try:
             # Use chat completion and parse the JSON manually
             response = self.llm.complete(self.prompt_template.format(news_article=text))
+            print(f"Response: {response}")
+            print(f"Response text: {response.text}")
 
             # Parse the JSON response
             # Clean the response text to handle trailing commas
             raw_response = response.text
             clean_response = raw_response.replace(",\n]", "\n]")  # Remove trailing comma in JSON lists
-            # print(f"Cleaned response: {clean_response}")
+            print(f"Cleaned response: {clean_response}")
 
-            parsed_response = json.loads(clean_response)
             # breakpoint()
-
-            # If parsed response is not a list, skip it
-            if not isinstance(parsed_response, list):
-                logger.debug(f"Unexpected response format, skipping: {parsed_response}")
+            # Check for exactly one set of outer brackets
+            if clean_response.count('[') != 1 or clean_response.count(']') != 1:
+                logger.warning("Response does not match expected array structure")
                 return []
 
-            # Create NewsSignal with the full parsed response
-            news_signal = NewsSignal(news_signals=parsed_response)
+            # Validate basic JSON array structure with proper coin/signal format
+            import re
 
-            # # If no valid signals, return None
-            # if not news_signal.news_signals:
-            #     pass
+            # Check if the response matches the expected structure
+            pattern = r'\[\s*({.*?}(?:\s*,\s*{.*?})*)\s*\]'
+            if not re.match(pattern, clean_response, re.DOTALL):
+                logger.warning("Response does not match expected array structure")
+                return []
+
+            # Additional validation for each object's structure
+            entries = re.findall(r'{[^{}]+}', clean_response)
+            valid_entries = []
+
+            for entry in entries:
+                # Check if entry contains only "coin" and "signal" keys with proper format
+                if re.match(r'\s*{\s*"coin"\s*:\s*"[^"]+"\s*,\s*"signal"\s*:\s*-?\d+\s*}\s*', entry):
+                    valid_entries.append(entry)
+
+            if not valid_entries:
+                logger.warning("No valid entries found in response")
+                return []
+
+            # Reconstruct valid JSON array
+            valid_json = f"[{','.join(valid_entries)}]"
+
+            # Now parse the validated JSON
+            parsed_response = json.loads(valid_json)
+
+            # Create NewsSignal with the validated responses
+            news_signal = NewsSignal(news_signals=parsed_response)
 
             if output_format == 'list':
                 return news_signal.model_dump()['news_signals']

@@ -10,7 +10,7 @@ dependencies = [
     "loguru>=0.7.3",
     "pandas>=2.2.3",
     "pydantic-settings>=2.6.1",
-    "quixstreams>=3.4.0",
+    "quixstreams>=3.5.0",
     "rarfile>=4.2",
     "requests>=2.32.3",
 ]

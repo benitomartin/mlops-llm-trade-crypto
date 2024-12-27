@@ -18,8 +18,9 @@ services:
       - DATA_SOURCE=historical
       - HISTORICAL_DATA_SOURCE_CSV_FILE=/app/data/cryptopanic_news.csv
     volumes:
-      - ../services/news/data:/app/data
-    # restart: always 
+      - ../services/news/data:/app/data  # Historical data from CSV
+      - news_named_volume:/app/state     # State for news service
+    restart: always 
 
   news-signal:
     build:
@@ -35,9 +36,11 @@ services:
       - KAFKA_INPUT_TOPIC=news_historical_${RUN_ID}
       - KAFKA_OUTPUT_TOPIC=news_signal_historical_${RUN_ID}
       - KAFKA_CONSUMER_GROUP=news_signal_historical_${RUN_ID}
-      - MODEL_PROVIDER=ollama # [ollama, anthropic, dummy]TODO: change to our fine tuned model (once we manage to export it!)
+      - MODEL=ollama # [ollama, anthropic, dummy]TODO: change to our fine tuned model (once we manage to export it!)
       - DATA_SOURCE=historical
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    volumes:
+      - news_signal_named_volume:/app/state
     restart: always
 
   to-feature-store:
@@ -58,4 +61,14 @@ services:
       - FEATURE_GROUP_PRIMARY_KEYS=["coin"]
       - FEATURE_GROUP_EVENT_TIME=timestamp_ms
       - DATA_SOURCE=historical
+    volumes:
+      - fs_named_volume:/app/state     # State for fs service
     restart: always
+
+volumes:
+  news_named_volume:
+    # external: true
+  news_signal_named_volume:
+    # external: true
+  fs_named_volume:
+    # external: true

@@ -14,6 +14,8 @@ services:
       - ../services/news/settings.env
     environment:
       - KAFKA_BROKER_ADDRESS=redpanda:9092
+    volumes:
+      - news_named_volume:/app/state
     # restart: always
 
   news-signal:
@@ -24,10 +26,13 @@ services:
       - redpanda_network
     env_file:
       - ../services/news-signal/settings.env
-      - ../services/news-signal/anthropic_credentials.env
+      # - ../services/news-signal/anthropic_credentials.env
     environment:
       - KAFKA_BROKER_ADDRESS=redpanda:9092
-      - MODEL=dummy
+      - MODEL=ollama
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    volumes:
+      - news_signal_named_volume:/app/state
     # restart: always
 
   to-feature-store:
@@ -41,4 +46,14 @@ services:
       - ../services/to-feature-store/hops_credentials.env
     environment:
       - KAFKA_BROKER_ADDRESS=redpanda:9092
+    volumes:
+      - fs_named_volume:/app/state     # State for fs service
     # restart: always
+
+volumes:
+  news_named_volume:
+    # external: true
+  news_signal_named_volume:
+    # external: true
+  fs_named_volume:
+    # external: true

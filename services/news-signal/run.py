@@ -1,5 +1,6 @@
 from typing import List, Literal, Optional
 
+from llms.base import BaseNewsSignalExtractor
 from loguru import logger
 from quixstreams import Application
 
@@ -9,7 +10,9 @@ def add_signal_to_news(value: dict) -> dict:
     From the given news in value['title'] extract the news signal using the LLM.
     """
     logger.debug(f'Extracting news signal from {value["title"]}')
+    logger.debug(f'Extracting news signal from {value["title"]}')
     news_signal: List[dict] = llm.get_signal(value['title'], output_format='list')
+    print(news_signal)
 
     # breakpoint()
     # A news_signal might have multiple coins, e.g.
@@ -20,22 +23,32 @@ def add_signal_to_news(value: dict) -> dict:
         logger.debug('News signal is empty, skipping processing.')
         return []
 
-    model_name = llm.llm_name
-    timestamp_ms = value['timestamp_ms']
 
-    # breakpoint()
+    # Validate that each entry in news_signal has 'coin' and 'signal' keys
+    valid_news_signal = []
+    for n in news_signal:
+        if 'coin' in n and 'signal' in n:
+            valid_news_signal.append(n)
+        else:
+            logger.warning(f"Skipping invalid news signal entry: {n}")
+
+    # If the valid_news_signal list is empty after validation, return an empty list
+    if not valid_news_signal:
+        logger.debug('No valid news signal entries found, skipping processing.')
+        return []
+
+    timestamp_ms = value['timestamp_ms']
 
     try:
         output = [
             {
                 'coin': n['coin'],
                 'signal': n['signal'],
-                'model_name': model_name,
+                'model_name': config.model,
                 'timestamp_ms': timestamp_ms,
             }
-            for n in news_signal
+            for n in valid_news_signal
         ]
-        # breakpoint()
     except Exception as e:
         logger.error(f'Cannot extract news signal from {news_signal}')
         logger.error(f'Error extracting news signal: {e}')
@@ -49,7 +62,7 @@ def main(
     kafka_input_topic: str,
     kafka_output_topic: str,
     kafka_consumer_group: str,
-    # llm: BaseNewsSignalExtractor,
+    llm: BaseNewsSignalExtractor,
     data_source: Literal['live', 'historical', 'test'],
     debug: Optional[bool] = False,
 
@@ -116,7 +129,7 @@ if __name__ == '__main__':
         kafka_input_topic=config.kafka_input_topic,
         kafka_output_topic=config.kafka_output_topic,
         kafka_consumer_group=config.kafka_consumer_group,
-        # llm=llm,
+        llm=llm,
         data_source=config.data_source,
 
     )

@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 import hopsworks
+import pandas as pd
 from hsfs.feature_group import FeatureGroup
 from hsfs.feature_store import FeatureStore
 from hsfs.feature_view import FeatureView
@@ -26,6 +27,7 @@ class FeatureReader:
         pair_to_predict: str,
         candle_seconds: int,
         pairs_as_features: list[str],
+        technical_indicators_as_features: list[str],
         prediction_seconds: int,
         llm_model_name_news_signals: str,
         # Optional. Only required if the feature view above does not exist and needs
@@ -39,6 +41,7 @@ class FeatureReader:
         self.pair_to_predict = pair_to_predict
         self.candle_seconds = candle_seconds
         self.pairs_as_features = pairs_as_features
+        self.technical_indicators_as_features = technical_indicators_as_features
         self.prediction_seconds = prediction_seconds
         self.llm_model_name_news_signals = llm_model_name_news_signals
 
@@ -118,22 +121,36 @@ class FeatureReader:
         # )
 
         # # Attempt to create the feature view in one query
-        # query = technical_indicators_fg.select_all() \
-        #     .join(
-        #         news_signals_fg.select_all(),
-        #         on=["coin"],
-        #         join_type="left",
-        #         prefix='news_signals_',
+        # Query to create a new feature view
+        query = technical_indicators_fg.select_all() \
+            .join(
+                news_signals_fg.select_all(),
+                on=["coin"],
+                join_type="left",
+                prefix='news_signals_',
+            ) \
+            .filter(
+                (technical_indicators_fg.candle_seconds == self.candle_seconds) & \
+                (news_signals_fg.model_name == self.llm_model_name_news_signals)
+            )
+
+        # Query to view the existing feature view
+        query = technical_indicators_fg.select_all() \
+            .join(
+                news_signals_fg.select_all(),
+                on=["coin"],
+                join_type="left",
+                prefix='news_signals_',
             # ) \
             # .filter(
             #     (technical_indicators_fg.candle_seconds == self.candle_seconds) & \
             #     (news_signals_fg.model_name == self.llm_model_name_news_signals)
-            # )
+            )
 
-        # # TODO: remove this once we have the correct query
-        query = technical_indicators_fg.select_all().filter(
-            technical_indicators_fg.candle_seconds == self.candle_seconds
-        )
+        # # # TODO: remove this once we have the correct query
+        # query = technical_indicators_fg.select_all().filter(
+        #     technical_indicators_fg.candle_seconds == self.candle_seconds
+        # )
 
         # # This query works
         # query = technical_indicators_fg \
@@ -146,10 +163,11 @@ class FeatureReader:
             name=feature_view_name,
             version=feature_view_version,
             query=query,
-            logging_enabled=True,
+            # logging_enabled=True,
         )
         logger.info(f'Feature view {feature_view_name}-{feature_view_version} created')
 
+        # breakpoint()
         return feature_view
 
     def _get_feature_view(
@@ -179,15 +197,114 @@ class FeatureReader:
         Use the self._feature_view to get the training data going back `days_back` days.
         """
         logger.info(f'Getting training data going back {days_back} days')
-        return self._feature_view.get_batch_data(
+        raw_features = self._feature_view.get_batch_data(
             start_time=datetime.now() - timedelta(days=days_back),
             end_time=datetime.now(),
         )
+        
+        # horizontally stack the features for each pair
+        # we want the outpu to be a daframe with (features, target)
+        features = self._preprocess_raw_features_into_features_and_target(
+            raw_features,
+            add_target_column=True,
+        )
+        
+        # breakpoint()
+        
+        return features
 
     #     # TODO: split these features into groups of `pairs` and then stack them
     #     # horizontally
     #     # On Monday
 
+    def _preprocess_raw_features_into_features_and_target(
+        self,
+        data: pd.DataFrame,
+        add_target_column: bool,
+    ) -> pd.DataFrame:
+        """
+        Preprocess the features into features and possibly targets.
+        Horizontally stack the features for each pair, matching the timestamps.
+
+        """
+        # append self.pair_to_predict to the list of pairs
+        if self.pair_to_predict != self.pairs_as_features[0]:
+            # TODO: move this validation to the config.py
+            raise ValueError(
+                f'Pair {self.pair_to_predict} not found as the first feature in pairs_as_features'
+            )
+
+        # Horizontally stack the features for each pair
+        df_all = None
+        for pair in self.pairs_as_features:
+            logger.info(f'Horizontally stacking features for pair {pair}')
+
+            # filer rows for this pair
+            df = data[data['pair'] == pair]
+
+            # keep only the columns we need
+            df = df[
+                ['pair', 'window_end_ms', 'open', 'close']
+                + self.technical_indicators_as_features
+                + ['news_signals_signal']
+            ]
+
+            if df_all is not None:
+                # if we already have a df, we need to match the timestamps
+                # left join between df_all and df on the timestamp column
+                df_all = df_all.merge(
+                    df,
+                    on='window_end_ms',
+                    how='left',
+                    suffixes=('', f'_{pair}'),
+                )
+            else:
+                df_all = df
+
+
+        if add_target_column:
+            logger.info('Adding target column to the dataset')
+
+            # extract the timestamp_ms and close columns where the targets are
+            df_target = df_all[['window_end_ms', 'close']]
+
+            # move the timestamp_ms column to the prediction_seconds seconds from now
+            # so we can join on it
+            df_target['window_end_ms'] = (
+                df_target['window_end_ms'] - self.prediction_seconds * 1000
+            )
+
+            # left join on the timestamp_ms columns
+            df_all = df_all.merge(
+                df_target,
+                on='window_end_ms',
+                how='left',
+                suffixes=('', '_target'),
+            )
+            
+            
+            # drop rows for which the column `close_target` is NaN
+            df_all = df_all[df_all['close_target'].notna()]
+
+            # rename the close_target column to target
+            df_all.rename(columns={'close_target': 'target'}, inplace=True)
+            breakpoint()
+
+        # rename the window_end_ms column to timestamp_ms and sort by it
+        df_all.rename(columns={'window_end_ms': 'timestamp_ms'}, inplace=True)
+        df_all.sort_values(by='timestamp_ms', inplace=True)
+
+        # drop the pair_{pair} columns
+        # These are categorical features and we don't need for the model
+        df_all.drop(
+            columns=[col for col in df_all.columns if col.startswith('pair')],
+            inplace=True,
+        )
+        
+        
+        
+        # return df_all            
+    
     # def get_inference_data(self):
     #     pass
 
@@ -205,17 +322,43 @@ if __name__ == '__main__':
         pair_to_predict='BTC/USD',
         candle_seconds=60,
         pairs_as_features=['BTC/USD', 'ETH/USD'],
-        prediction_seconds=60 * 5,
-        llm_model_name_news_signals='dummy',
-        # Optional. Only required if the feature view above does not exist and needs
+        technical_indicators_as_features=[
+            'rsi_9',
+            'rsi_14',
+            'rsi_21',
+            'macd',
+            'macd_signal',
+            'macd_hist',
+            'bbands_upper',
+            'bbands_middle',
+            'bbands_lower',
+            'stochrsi_fastk',
+            'stochrsi_fastd',
+            'adx',
+            'volume_ema',
+            'ichimoku_conv',
+            'ichimoku_base',
+            'ichimoku_span_a',
+            'ichimoku_span_b',
+            'mfi',
+            'atr',
+            'price_roc',
+            'sma_7',
+            'sma_14',
+            'sma_21',
+        ],
+        prediction_seconds=60 * 5, # 5 Minutes into the future
+        llm_model_name_news_signals='ollama',
+
+        # # Optional. Only required if the feature view above does not exist and needs
         # to be created
-        technical_indicators_feature_group_name='technical_indicators',
-        technical_indicators_feature_group_version=1,
-        news_signals_feature_group_name='news_signals',
-        news_signals_feature_group_version=1,
+        # technical_indicators_feature_group_name='technical_indicators',
+        # technical_indicators_feature_group_version=1,
+        # news_signals_feature_group_name='news_signals',
+        # news_signals_feature_group_version=1,
     )
 
 
-    training_data = feature_reader.get_training_data(days_back=1000)
+    training_data = feature_reader.get_training_data(days_back=100)
     print(training_data)
-    # breakpoint()
+    breakpoint()

@@ -1187,7 +1187,7 @@ requires-dist = [
     { name = "pre-commit", specifier = ">=4.0.1" },
     { name = "pydantic", specifier = ">=2.10.3" },
     { name = "pydantic-settings", specifier = ">=2.6.1" },
-    { name = "quixstreams", specifier = ">=3.4.0" },
+    { name = "quixstreams", specifier = ">=3.5.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8.3" },
 ]
 
@@ -1908,7 +1908,7 @@ wheels = [
 
 [[package]]
 name = "quixstreams"
-version = "3.4.0"
+version = "3.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "confluent-kafka" },
@@ -1922,7 +1922,7 @@ dependencies = [
     { name = "typing-extensions" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1f/58/53d33ce4fe3ea6f4f0d1853a8ad0fe5aead73cc62fcba7b80bf126be008d/quixstreams-3.4.0-py3-none-any.whl", hash = "sha256:177b52a18bfccd4a789643bfbc41fd8c60898c3f9872062e213a9b10d151e040", size = 235446 },
+    { url = "https://files.pythonhosted.org/packages/d5/28/4e100de48979814fa5d2ef0377334a172996759507b9c254a97ab8ee2f87/quixstreams-3.5.0-py3-none-any.whl", hash = "sha256:b942fe0564a59fde03231f6ddee0c9dbedcc5f185dcb6925d83eabdd13858dc6", size = 238464 },
 ]
 
 [[package]]

@@ -15,6 +15,8 @@ services:
       - ../services/trades/settings.env
     environment:
       - KAFKA_BROKER_ADDRESS=redpanda:9092
+    volumes:
+      - trades_named_volume:/app/state
     restart: always # This will restart the container if it crashes. Similar to a Kubernetes pod.
 
   candles:
@@ -27,6 +29,8 @@ services:
       - ../services/candles/settings.env
     environment:
       - KAFKA_BROKER_ADDRESS=redpanda:9092
+    volumes:
+      - candles_named_volume:/app/state
     restart: always
 
   technical-indicators:
@@ -39,6 +43,8 @@ services:
       - ../services/technical-indicators/settings.env
     environment:
       - KAFKA_BROKER_ADDRESS=redpanda:9092
+    volumes:
+      - ti_named_volume:/app/state
     restart: always
 
   to-feature-store:
@@ -52,4 +58,17 @@ services:
       - ../services/to-feature-store/hops_credentials.env
     environment:
       - KAFKA_BROKER_ADDRESS=redpanda:9092
+    volumes:
+      - fs_named_volume:/app/state
     restart: always
+
+
+volumes:
+  trades_named_volume:
+    # external: true
+  candles_named_volume:
+    # external: true
+  ti_named_volume:
+    # external: true
+  fs_named_volume:
+    # external: true

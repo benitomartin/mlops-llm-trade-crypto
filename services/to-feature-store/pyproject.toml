@@ -12,7 +12,7 @@ dependencies = [
     "pre-commit>=4.0.1",
     "pyarrow>=18.1.0",
     "pydantic-settings>=2.6.1",
-    "quixstreams>=3.4.0",
+    "quixstreams>=3.5.0",
 ]
 
 [project.optional-dependencies]
