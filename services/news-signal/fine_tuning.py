@@ -154,7 +154,7 @@ def fine_tune(
     train_dataset: Dataset,
     test_dataset: Dataset,
     max_seq_length: int,
-    max_steps: int
+    max_steps: int,
 ):
     """
     Fine-tunes the model using supervised fine tuning.
@@ -202,24 +202,28 @@ def sanity_check(
     Just checking if the trained model works on a simple example
     """
     FastLanguageModel.for_inference(model)  # Enable native 2x faster inference
-    inputs = tokenizer([
-        alpaca_prompt.format(
-        instruction,  # instruction
-        input_example,  # input
-        '',  # output - leave this blank for generation!
-        )
+    inputs = tokenizer(
+        [
+            alpaca_prompt.format(
+                instruction,  # instruction
+                input_example,  # input
+                '',  # output - leave this blank for generation!
+            )
         ],
-                       return_tensors='pt',
+        return_tensors='pt',
     ).to('cuda')
 
     outputs = model.generate(**inputs, max_new_tokens=128, use_cache=True)
     output = tokenizer.batch_decode(outputs)
     logger.info('Inference: {}', output)
 
+
 def export_model_to_ollama_format(
     model: FastLanguageModel,
     tokenizer: AutoTokenizer,
-    quantization_method: Optional[Literal['iq2_xxs', 'q4_k_s', 'q4_k_m', 'f16', 'q8_0']] = 'q4_k_s', # iq2_xxs is the smallest size
+    quantization_method: Optional[
+        Literal['iq2_xxs', 'q4_k_s', 'q4_k_m', 'f16', 'q8_0']
+    ] = 'q4_k_s',  # iq2_xxs is the smallest size
     # Optionally you can push it to HugginFace model registry
     hf_username: Optional[str] = None,
     hf_token: Optional[str] = None,
@@ -239,13 +243,13 @@ def export_model_to_ollama_format(
     # export the quantized model
     try:
         logger.info(f'Starting model export with quantization: {quantization_method}')
-        logger.info(f'Available GPU memory before export: {torch.cuda.memory_allocated() if torch.cuda.is_available() else "N/A"}')
+        logger.info(
+            f'Available GPU memory before export: {torch.cuda.memory_allocated() if torch.cuda.is_available() else "N/A"}'
+        )
         logger.info('Saving model locally to disk')
 
         model.save_pretrained_gguf(
-            'model',
-            tokenizer,
-            quantization_method=quantization_method
+            'model', tokenizer, quantization_method=quantization_method
         )
         logger.info('Model saved to disk!')
     except Exception as e:
@@ -338,6 +342,7 @@ def run(
         # Cleanup
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+
 
 if __name__ == '__main__':
     from fire import Fire

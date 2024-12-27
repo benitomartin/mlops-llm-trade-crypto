@@ -44,13 +44,8 @@ class DummyNewsSignalExtractor(BaseNewsSignalExtractor):
             )
 
 
-
 if __name__ == '__main__':
-
-
-    llm = DummyNewsSignalExtractor(
-
-    )
+    llm = DummyNewsSignalExtractor()
 
     examples = [
         'Bitcoin BTC ads spotted on China’s Alipay payment app',

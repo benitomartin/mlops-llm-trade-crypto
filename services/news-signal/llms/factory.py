@@ -5,7 +5,9 @@ from .claude import ClaudeNewsSignalExtractor
 from .ollama_model import OllamaNewsSignalExtractor
 
 
-def get_llm(llm_name: Literal['anthropic', 'ollama', 'dummy']) -> BaseNewsSignalExtractor:
+def get_llm(
+    llm_name: Literal['anthropic', 'ollama', 'dummy'],
+) -> BaseNewsSignalExtractor:
     """
     Returns the LLM we want for the news signal extractor
 
@@ -33,7 +35,6 @@ def get_llm(llm_name: Literal['anthropic', 'ollama', 'dummy']) -> BaseNewsSignal
         return OllamaNewsSignalExtractor(
             llm_name=config.llm_name,
             base_url=config.ollama_base_url,
-
         )
 
     elif llm_name == 'dummy':

@@ -43,7 +43,7 @@ https://github.com/ggerganov/llama.cpp/blob/master/docs/build.md
     cmake -B build # Remove build folder if any error
     cmake --build build --config Release
 
-Locally quantization_method = q4_k_m, can save the model. q8 gives make error. 
+Locally quantization_method = q4_k_m, can save the model. q8 gives make error.
 
 Here are some sizes
 https://github.com/ggerganov/llama.cpp/blob/master/examples/quantize/README.md

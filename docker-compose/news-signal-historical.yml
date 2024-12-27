@@ -20,7 +20,7 @@ services:
     volumes:
       - ../services/news/data:/app/data  # Historical data from CSV
       - news_named_volume:/app/state     # State for news service
-    restart: always 
+    restart: always
 
   news-signal:
     build:

@@ -92,14 +92,13 @@ class FeatureReader:
             technical_indicators_feature_group_name,
             technical_indicators_feature_group_version,
         )
-        print(f"A: {technical_indicators_fg}")
+        print(f'A: {technical_indicators_fg}')
 
         news_signals_fg = self._get_feature_group(
             news_signals_feature_group_name,
             news_signals_feature_group_version,
         )
-        print(f"B: {news_signals_fg}")
-
+        print(f'B: {news_signals_fg}')
 
         # # Query in 3-steps
         # # Step 1. Filter rows from news_signals_fg for the model_name we need and drop the model_name column
@@ -122,30 +121,31 @@ class FeatureReader:
 
         # # Attempt to create the feature view in one query
         # Query to create a new feature view
-        query = technical_indicators_fg.select_all() \
+        query = (
+            technical_indicators_fg.select_all()
             .join(
                 news_signals_fg.select_all(),
-                on=["coin"],
-                join_type="left",
+                on=['coin'],
+                join_type='left',
                 prefix='news_signals_',
-            ) \
-            .filter(
-                (technical_indicators_fg.candle_seconds == self.candle_seconds) & \
-                (news_signals_fg.model_name == self.llm_model_name_news_signals)
             )
+            .filter(
+                (technical_indicators_fg.candle_seconds == self.candle_seconds)
+                & (news_signals_fg.model_name == self.llm_model_name_news_signals)
+            )
+        )
 
         # Query to view the existing feature view
-        query = technical_indicators_fg.select_all() \
-            .join(
-                news_signals_fg.select_all(),
-                on=["coin"],
-                join_type="left",
-                prefix='news_signals_',
+        query = technical_indicators_fg.select_all().join(
+            news_signals_fg.select_all(),
+            on=['coin'],
+            join_type='left',
+            prefix='news_signals_',
             # ) \
             # .filter(
             #     (technical_indicators_fg.candle_seconds == self.candle_seconds) & \
             #     (news_signals_fg.model_name == self.llm_model_name_news_signals)
-            )
+        )
 
         # # # TODO: remove this once we have the correct query
         # query = technical_indicators_fg.select_all().filter(
@@ -189,7 +189,7 @@ class FeatureReader:
         logger.info('Getting feature store')
         project = hopsworks.login(project=project_name, api_key_value=api_key)
         fs = project.get_feature_store()
-        print(f"fs: {fs}")
+        print(f'fs: {fs}')
         return fs
 
     def get_training_data(self, days_back: int):
@@ -201,16 +201,16 @@ class FeatureReader:
             start_time=datetime.now() - timedelta(days=days_back),
             end_time=datetime.now(),
         )
-        
+
         # horizontally stack the features for each pair
         # we want the outpu to be a daframe with (features, target)
         features = self._preprocess_raw_features_into_features_and_target(
             raw_features,
             add_target_column=True,
         )
-        
+
         # breakpoint()
-        
+
         return features
 
     #     # TODO: split these features into groups of `pairs` and then stack them
@@ -261,6 +261,9 @@ class FeatureReader:
             else:
                 df_all = df
 
+        df_all = self._optimize_data_types(df_all)
+
+        # breakpoint()
 
         if add_target_column:
             logger.info('Adding target column to the dataset')
@@ -268,11 +271,15 @@ class FeatureReader:
             # extract the timestamp_ms and close columns where the targets are
             df_target = df_all[['window_end_ms', 'close']]
 
+            # print(df_target)
+
             # move the timestamp_ms column to the prediction_seconds seconds from now
             # so we can join on it
-            df_target['window_end_ms'] = (
+            df_target.loc[:, 'window_end_ms'] = (
                 df_target['window_end_ms'] - self.prediction_seconds * 1000
             )
+            # print(df_target)
+            # breakpoint()
 
             # left join on the timestamp_ms columns
             df_all = df_all.merge(
@@ -281,32 +288,47 @@ class FeatureReader:
                 how='left',
                 suffixes=('', '_target'),
             )
-            
-            
+            # breakpoint()
+
             # drop rows for which the column `close_target` is NaN
             df_all = df_all[df_all['close_target'].notna()]
 
             # rename the close_target column to target
             df_all.rename(columns={'close_target': 'target'}, inplace=True)
-            breakpoint()
 
         # rename the window_end_ms column to timestamp_ms and sort by it
         df_all.rename(columns={'window_end_ms': 'timestamp_ms'}, inplace=True)
         df_all.sort_values(by='timestamp_ms', inplace=True)
 
-        # drop the pair_{pair} columns
-        # These are categorical features and we don't need for the model
-        df_all.drop(
-            columns=[col for col in df_all.columns if col.startswith('pair')],
-            inplace=True,
-        )
-        
-        
-        
-        # return df_all            
-    
-    # def get_inference_data(self):
-    #     pass
+        # # drop the pair_{pair} columns
+        # # These are categorical features and we don't need for the model
+        # df_all.drop(
+        #     columns=[col for col in df_all.columns if col.startswith('pair')],
+        #     inplace=True,
+        # )
+
+        logger.info(f'Final df_all: {df_all}')
+        logger.info(f'Final df_all shape: {df_all.shape}')
+
+        return df_all
+
+    def _optimize_data_types(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Optimize the data types of the DataFrame to reduce memory usage.
+        Converts float64 to float32 and int64 to int32.
+        """
+        logger.info('Optimizing data types')
+        float_cols = df.select_dtypes(include=['float64']).columns
+        int_cols = df.select_dtypes(include=['int64']).columns
+
+        df[float_cols] = df[float_cols].astype('float32')
+        df[int_cols] = df[int_cols].astype('int32')
+
+        logger.info('Data type optimization complete')
+        return df
+
+    def get_inference_data(self):
+        pass
 
 
 if __name__ == '__main__':
@@ -347,9 +369,8 @@ if __name__ == '__main__':
             'sma_14',
             'sma_21',
         ],
-        prediction_seconds=60 * 5, # 5 Minutes into the future
+        prediction_seconds=60 * 5,  # 5 Minutes into the future
         llm_model_name_news_signals='ollama',
-
         # # Optional. Only required if the feature view above does not exist and needs
         # to be created
         # technical_indicators_feature_group_name='technical_indicators',
@@ -358,7 +379,7 @@ if __name__ == '__main__':
         # news_signals_feature_group_version=1,
     )
 
-
     training_data = feature_reader.get_training_data(days_back=100)
     print(training_data)
-    breakpoint()
+
+    # breakpoint()

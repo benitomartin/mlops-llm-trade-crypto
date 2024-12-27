@@ -18,7 +18,6 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
             model=llm_name,
             temperature=temperature,
             base_url=base_url,
-
         )
 
         self.prompt_template = PromptTemplate(
@@ -56,19 +55,21 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
         try:
             # Use chat completion and parse the JSON manually
             response = self.llm.complete(self.prompt_template.format(news_article=text))
-            print(f"Response: {response}")
-            print(f"Response text: {response.text}")
+            print(f'Response: {response}')
+            print(f'Response text: {response.text}')
 
             # Parse the JSON response
             # Clean the response text to handle trailing commas
             raw_response = response.text
-            clean_response = raw_response.replace(",\n]", "\n]")  # Remove trailing comma in JSON lists
-            print(f"Cleaned response: {clean_response}")
+            clean_response = raw_response.replace(
+                ',\n]', '\n]'
+            )  # Remove trailing comma in JSON lists
+            print(f'Cleaned response: {clean_response}')
 
             # breakpoint()
             # Check for exactly one set of outer brackets
             if clean_response.count('[') != 1 or clean_response.count(']') != 1:
-                logger.warning("Response does not match expected array structure")
+                logger.warning('Response does not match expected array structure')
                 return []
 
             # Validate basic JSON array structure with proper coin/signal format
@@ -77,7 +78,7 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
             # Check if the response matches the expected structure
             pattern = r'\[\s*({.*?}(?:\s*,\s*{.*?})*)\s*\]'
             if not re.match(pattern, clean_response, re.DOTALL):
-                logger.warning("Response does not match expected array structure")
+                logger.warning('Response does not match expected array structure')
                 return []
 
             # Additional validation for each object's structure
@@ -86,11 +87,14 @@ class OllamaNewsSignalExtractor(BaseNewsSignalExtractor):
 
             for entry in entries:
                 # Check if entry contains only "coin" and "signal" keys with proper format
-                if re.match(r'\s*{\s*"coin"\s*:\s*"[^"]+"\s*,\s*"signal"\s*:\s*-?\d+\s*}\s*', entry):
+                if re.match(
+                    r'\s*{\s*"coin"\s*:\s*"[^"]+"\s*,\s*"signal"\s*:\s*-?\d+\s*}\s*',
+                    entry,
+                ):
                     valid_entries.append(entry)
 
             if not valid_entries:
-                logger.warning("No valid entries found in response")
+                logger.warning('No valid entries found in response')
                 return []
 
             # Reconstruct valid JSON array

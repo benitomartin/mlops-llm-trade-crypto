@@ -23,14 +23,13 @@ def add_signal_to_news(value: dict) -> dict:
         logger.debug('News signal is empty, skipping processing.')
         return []
 
-
     # Validate that each entry in news_signal has 'coin' and 'signal' keys
     valid_news_signal = []
     for n in news_signal:
         if 'coin' in n and 'signal' in n:
             valid_news_signal.append(n)
         else:
-            logger.warning(f"Skipping invalid news signal entry: {n}")
+            logger.warning(f'Skipping invalid news signal entry: {n}')
 
     # If the valid_news_signal list is empty after validation, return an empty list
     if not valid_news_signal:
@@ -65,7 +64,6 @@ def main(
     llm: BaseNewsSignalExtractor,
     data_source: Literal['live', 'historical', 'test'],
     debug: Optional[bool] = False,
-
 ):
     logger.info('Hello from news-signal!')
 
@@ -131,5 +129,4 @@ if __name__ == '__main__':
         kafka_consumer_group=config.kafka_consumer_group,
         llm=llm,
         data_source=config.data_source,
-
     )
