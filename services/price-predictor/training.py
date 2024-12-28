@@ -215,6 +215,7 @@ def train(
     # if mae_xgboost_model < mae_dummy_model:
     # TODO: remove this condition once you are able to get a better model
     # Ideally, you want to push a model that is better than the dummy model
+    # if mae_xgboost_model < mae_dummy_model:
     if True:
         # This means the model is better than the dummy model
         # so we register it

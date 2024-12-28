@@ -50,6 +50,53 @@ class TrainingConfig(BaseSettings):
 
 training_config = TrainingConfig()
 
+class InferenceConfig(BaseSettings):
+    """
+    Configuration for the inference job
+
+    These are the parameters that are used to load the model from the model registry
+    and to generate the predictions
+
+    Observe how most of the parameters from the trianing job are not here. Instead,
+    they are loaded from the model registry. More precisely, from the experiment run
+    that generated the model artifact we load from the registry.
+    """
+
+    model_config = SettingsConfigDict(env_file='inference.settings.env')
+
+    # pair and frequency for which we want to predict
+    pair_to_predict: str = Field(description='The pair to train the model on')
+    candle_seconds: int = Field(description='The number of seconds per candle')
+    prediction_seconds: int = Field(
+        description='The number of seconds into the future to predict'
+    )
+
+    # environment of the model we want to use for inference
+    # - Development: the model is in the development environment
+    # - Staging: the model is in the staging environment
+    # - Production: the model is in the production environment
+    model_status: Literal['Development', 'Staging', 'Production'] = Field(
+        description='The status of the model in the model registry that we want to use for inference'
+    )
+
+    # kafka config
+    # To listen to candle events and trigger predictions
+    kafka_broker_address: str = Field(description='The address of the kafka broker')
+    kafka_input_topic: str = Field(
+        description='The topic to listen to for candle events'
+    )
+    kafka_consumer_group: str = Field(
+        description='The consumer group to use for the kafka consumer'
+    )
+
+    # Elastic Search config
+    elasticsearch_url: str = Field(description='The URL of the Elastic Search instance')
+    elasticsearch_index: str = Field(
+        description='The index to write the predictions to'
+    )
+
+
+inference_config = InferenceConfig()
 
 class HopsworksCredentials(BaseSettings):
     model_config = SettingsConfigDict(env_file='hops_credentials.env')
