@@ -1,0 +1,11 @@
+# Ignore the state directory
+state/
+
+# Ignore common unnecessary files
+.git
+__pycache__
+.ruff_cache
+*.pyc
+*.pyo
+.DS_Store
+node_modules/
