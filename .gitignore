@@ -171,3 +171,5 @@ cython_debug/
 **/llama.cpp/
 **/model/
 **/outputs/
+**/comet_ml_credentials.env
+**/*.joblib

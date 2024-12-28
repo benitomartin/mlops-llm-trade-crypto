@@ -1,9 +1,13 @@
+import comet_ml
+import joblib
 import pandas as pd
 from loguru import logger
 from sklearn.metrics import mean_absolute_error
+from names import get_model_name
 
 from feature_reader import FeatureReader
 from models.dummy_model import DummyModel
+from models.xgboost_model import XGBoostModel
 
 
 def train_test_split(
@@ -40,8 +44,14 @@ def train(
     prediction_seconds: int,
     llm_model_name_news_signals: str,
     days_back: int,
+    comet_ml_api_key: str,
+    comet_ml_project_name: str,
+    hyperparameter_tuning_search_trials: int,
+    hyperparameter_tuning_n_splits: int,
+    model_status: str,
 ):
     """
+
     Does the following:
     1. Reads feature data from the Feature Store
     2. Splits the data into training and testing sets
@@ -51,10 +61,55 @@ def train(
 
     Everything is instrumented with CometML.
 
+    The model is saved to the model registry with the tag `model_tag`.
 
+    Args:
+        hopsworks_project_name: The name of the Hopsworks project
+        hopsworks_api_key: The API key for the Hopsworks project
+        feature_view_name: The name of the feature view to read data from
+        feature_view_version: The version of the feature view to read data from
+        pair_to_predict: The pair to train the model on
+        candle_seconds: The number of seconds per candle
+        pairs_as_features: The pairs to use for the features
+        technical_indicators_as_features: The technical indicators to use for from the technical_indicators feature group
+        prediction_seconds: The number of seconds into the future to predict
+        llm_model_name_news_signals: The name of the LLM model to use for the news signals
+        days_back: The number of days to consider for the historical data
+        comet_ml_api_key: The API key for the CometML project
+        comet_ml_project_name: The name of the CometML project
+        hyperparameter_tuning_search_trials: The number of trials to perform for hyperparameter tuning
+        hyperparameter_tuning_n_splits: The number of splits to perform for hyperparameter tuning
+        model_status: The status of the model in the model registry
     """
     logger.info('Hello from the ML model training job...')
 
+    # to log all parameters, metrics to our experiment tracking service
+    # and model artifact to the model registry
+    experiment = comet_ml.start(
+        api_key=comet_ml_api_key,
+        project_name=comet_ml_project_name,
+    )
+
+    experiment.log_parameters(
+        {
+            # super important to log these 2
+            # because we want our deployed model to use the EXACT SAME feature view
+            # as the one we used for training
+            'feature_view_name': feature_view_name,
+            'feature_view_version': feature_view_version,
+            'pair_to_predict': pair_to_predict,
+            'candle_seconds': candle_seconds,
+            'pairs_as_features': pairs_as_features,
+            'technical_indicators_as_features': technical_indicators_as_features,
+            'prediction_seconds': prediction_seconds,
+            'llm_model_name_news_signals': llm_model_name_news_signals,
+            'days_back': days_back,
+            'hyperparameter_tuning_search_trials': hyperparameter_tuning_search_trials,
+            'hyperparameter_tuning_n_splits': hyperparameter_tuning_n_splits,
+            'model_status': model_status,
+        }
+    )
+    
     # 1. Read feature data from the Feature Store
     feature_reader = FeatureReader(
         hopsworks_project_name,
@@ -84,14 +139,14 @@ def train(
     X_test = test_df.drop(columns=['target'])
     y_test = test_df['target']
 
-    # experiment.log_parameters(
-    #     {
-    #         'X_train': X_train.shape,
-    #         'y_train': y_train.shape,
-    #         'X_test': X_test.shape,
-    #         'y_test': y_test.shape,
-    #     }
-    # )
+    experiment.log_parameters(
+        {
+            'X_train': X_train.shape,
+            'y_train': y_train.shape,
+            'X_test': X_test.shape,
+            'y_test': y_test.shape,
+        }
+    )
 
     # 3. Evaluate quick baseline models
 
@@ -107,26 +162,74 @@ def train(
     logger.info(
         f'MAE of dummy model based on close price on training set: {mae_dummy_model_train}'
     )
-    # experiment.log_metric('mae_train_dummy_model', mae_dummy_model_train)
+    experiment.log_metric('mae_train_dummy_model', mae_dummy_model_train)
 
     # Dummy model based on sma_7
     if 'sma_7' in technical_indicators_as_features:
         y_test_pred = DummyModel(from_feature='sma_7').predict(X_test)
         mae_dummy_model = mean_absolute_error(y_test, y_test_pred)
         logger.info(f'MAE of dummy model based on sma_7: {mae_dummy_model}')
-        # experiment.log_metric('mae_dummy_model_sma_7', mae_dummy_model)
+        experiment.log_metric('mae_dummy_model_sma_7', mae_dummy_model)
 
     # Dummy model based on sma_14
     if 'sma_14' in technical_indicators_as_features:
         y_test_pred = DummyModel(from_feature='sma_14').predict(X_test)
         mae_dummy_model = mean_absolute_error(y_test, y_test_pred)
         logger.info(f'MAE of dummy model based on sma_14: {mae_dummy_model}')
-        # experiment.log_metric('mae_dummy_model_sma_14', mae_dummy_model)
+        experiment.log_metric('mae_dummy_model_sma_14', mae_dummy_model)
 
 
+    # 4. Fit an ML model on the training set
+    model = XGBoostModel()
+    model.fit(
+        X_train,
+        y_train,
+        n_search_trials=hyperparameter_tuning_search_trials,
+        n_splits=hyperparameter_tuning_n_splits,
+    )
+
+    # 5. Evaluate the model on the testing set
+    y_test_pred = model.predict(X_test)
+    mae_xgboost_model = mean_absolute_error(y_test, y_test_pred)
+    logger.info(f'MAE of XGBoost model: {mae_xgboost_model}')
+    experiment.log_metric('mae', mae_xgboost_model)
+
+    # To check overfitting we log the model error on the training set
+    y_train_pred = model.predict(X_train)
+    mae_xgboost_model_train = mean_absolute_error(y_train, y_train_pred)
+    logger.info(f'MAE of XGBoost model on training set: {mae_xgboost_model_train}')
+    experiment.log_metric('mae_train', mae_xgboost_model_train)
+
+    # 6. Save the model artifact to the experiment
+    # Save the model to local filepath
+    model_name = get_model_name(pair_to_predict, candle_seconds, prediction_seconds)
+    model_filepath = f'{model_name}.joblib'
+    joblib.dump(model.get_model_object(), model_filepath)
+
+    # Log the model to Comet
+    experiment.log_model(
+        name=model_name,
+        file_or_folder=model_filepath,
+    )
+
+    # if mae_xgboost_model < mae_dummy_model:
+    # TODO: remove this condition once you are able to get a better model
+    # Ideally, you want to push a model that is better than the dummy model
+    if True:
+        # This means the model is better than the dummy model
+        # so we register it
+        logger.info(f'Registering model {model_name} with status {model_status}')
+        registered_model = experiment.register_model(
+            model_name=model_name,
+            status=model_status,
+        )
+        logger.info(f'Registered model {registered_model}')
+
+    logger.info('Training job done!')
+    
 def main():
     from config import (
-        # comet_ml_credentials,
+        comet_ml_credentials,
         hopsworks_credentials,
         training_config,
     )
@@ -143,11 +246,11 @@ def main():
         prediction_seconds=training_config.prediction_seconds,
         llm_model_name_news_signals=training_config.llm_model_name_news_signals,
         days_back=training_config.days_back,
-        # comet_ml_api_key=comet_ml_credentials.api_key,
-        # comet_ml_project_name=comet_ml_credentials.project_name,
-        # hyperparameter_tuning_search_trials=training_config.hyperparameter_tuning_search_trials,
-        # hyperparameter_tuning_n_splits=training_config.hyperparameter_tuning_n_splits,
-        # model_status=training_config.model_status,
+        comet_ml_api_key=comet_ml_credentials.api_key,
+        comet_ml_project_name=comet_ml_credentials.project_name,
+        hyperparameter_tuning_search_trials=training_config.hyperparameter_tuning_search_trials,
+        hyperparameter_tuning_n_splits=training_config.hyperparameter_tuning_n_splits,
+        model_status=training_config.model_status,
     )
 
 

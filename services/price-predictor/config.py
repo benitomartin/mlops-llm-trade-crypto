@@ -1,3 +1,5 @@
+from typing import Literal, Optional
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -29,6 +31,22 @@ class TrainingConfig(BaseSettings):
         description='The name of the LLM model to use for the news signals'
     )
 
+    # hyperparameter tuning
+    hyperparameter_tuning_search_trials: Optional[int] = Field(
+        default=0,
+        description='The number of trials to perform for hyperparameter tuning',
+    )
+    hyperparameter_tuning_n_splits: Optional[int] = Field(
+        default=3,
+        description='The number of splits to perform for hyperparameter tuning',
+    )
+
+    # model registry
+    model_status: Literal['Development', 'Staging', 'Production'] = Field(
+        default='Development',
+        description='The status of the model in the model registry',
+    )
+
 
 training_config = TrainingConfig()
 
@@ -38,5 +56,11 @@ class HopsworksCredentials(BaseSettings):
     hopsworks_api_key: str
     hopsworks_project_name: str
 
+class CometMlCredentials(BaseSettings):
+    model_config = SettingsConfigDict(env_file='comet_ml_credentials.env')
+    api_key: str
+    project_name: str
+    workspace: str
 
 hopsworks_credentials = HopsworksCredentials()
+comet_ml_credentials = CometMlCredentials()

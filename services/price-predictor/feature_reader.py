@@ -302,10 +302,10 @@ class FeatureReader:
 
         # # drop the pair_{pair} columns
         # # These are categorical features and we don't need for the model
-        # df_all.drop(
-        #     columns=[col for col in df_all.columns if col.startswith('pair')],
-        #     inplace=True,
-        # )
+        df_all.drop(
+            columns=[col for col in df_all.columns if col.startswith('pair')],
+            inplace=True,
+        )
 
         logger.info(f'Final df_all: {df_all}')
         logger.info(f'Final df_all shape: {df_all.shape}')
